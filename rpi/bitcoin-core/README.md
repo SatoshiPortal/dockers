@@ -7,7 +7,7 @@ Don't just copy and paste.  Understand what you are doing.
 
 ## Assumptions
 
-[You have a working RPi.](https://github.com/SatoshiPortal/docker/tree/master/rpi)
+[You have a working RPi.](..)
 
 ## Log in RPi (user pi in this document), create bitcoinuser
 

@@ -13,7 +13,7 @@ Let’s run all of them each in a Docker container, on a Raspberry Pi!
 
 ## Assumptions
 
-[You have a working RPi.](https://github.com/SatoshiPortal/docker/tree/master/rpi)
+[You have a working RPi.](..)
 
 ## Create lnuser that will run the processes
 

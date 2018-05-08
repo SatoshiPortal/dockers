@@ -2,7 +2,7 @@
 
 ## Assumptions
 
-[Your lightning network user is created.](https://github.com/SatoshiPortal/docker/tree/master/rpi/LN)
+[Your lightning network user is created.](..)
 
 ## (if not using existing files): Create lightning and bitcoin working directories 
 
