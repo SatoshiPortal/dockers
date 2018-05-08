@@ -16,7 +16,7 @@ Don't just copy and paste.  Understand what you are doing.
 sudo useradd bitcoinuser
 ```
 
-## (if not using existing files): Create bitcoin working directory 
+## (if not using existing files): Create bitcoin working directory
 
 ```shell
 mkdir ~/.bitcoin
@@ -54,7 +54,7 @@ zmqpubrawtx=tcp://0.0.0.0:29000
 (replacing Bitcoin Core version by the one you want)
 
 ```shell
-docker build --build-arg USER_ID=$(id -u bitcoinuser) --build-arg GROUP_ID=$(id -g bitcoinuser) --build-arg CORE_VERSION="0.16.0" .
+docker build -t btcnode --build-arg USER_ID=$(id -u bitcoinuser) --build-arg GROUP_ID=$(id -g bitcoinuser) --build-arg CORE_VERSION="0.16.0" .
 ```
 
 ## Get docker image ID
@@ -64,14 +64,14 @@ docker images
 ```
 
 ## Run docker container
-(replacing `39fb889fd3ef` by the actual image ID as well as `SP-BTC01` by the container name you want)
+(replacing `SP-BTC01` by the container name you want)
 
 ```shell
-docker run -d --rm --mount type=bind,source="$HOME/.bitcoin",target="/bitcoin/.bitcoin" --name SP-BTC01 -p 18333:18333 -p 18332:18332 -p 29000:29000 39fb889fd3ef
+docker run -d --rm --mount type=bind,source="$HOME/.bitcoin",target="/bitcoin/.bitcoin" --name SP-BTC01 -p 18333:18333 -p 18332:18332 -p 29000:29000 btcnode
 ```
 
 ```shell
-docker run -d --rm --mount type=bind,source="$HOME/.bitcoin",target="/bitcoin/.bitcoin" --name SP-BTC01 -p 18333:18333 -p 18332:18332 -p 29000:29000 39fb889fd3ef bitcoin ./bitcoin-cli getinfo
+docker run -d --rm --mount type=bind,source="$HOME/.bitcoin",target="/bitcoin/.bitcoin" --name SP-BTC01 -p 18333:18333 -p 18332:18332 -p 29000:29000 btcnode bitcoin ./bitcoin-cli getinfo
 ```
 
 ## If needed, re-apply permissions to newly created files
@@ -81,12 +81,11 @@ sudo find ~/.bitcoin -type d -exec chmod 2775 {} \; ; sudo find ~/.bitcoin -type
 ```
 
 ## Show logs or info
-(replacing `f79af66b2215` by the actual container ID)
 
 With `printtoconsole=1` in bitcoin.conf:
 
 ```shell
-docker logs -f f79af66b2215
+docker logs -f SP-BTC01
 ```
 
 Without `printtoconsole=1` in bitcoin.conf:
@@ -98,7 +97,7 @@ sudo tail -f ~/.bitcoin/testnet3/debug.log
 Invoking bitcoin-cli…
 
 ```shell
-docker exec -it f79af66b2215 ./bitcoin-cli getblockchaininfo
+docker exec -it SP-BTC01 ./bitcoin-cli getblockchaininfo
 ```
 
 ---
