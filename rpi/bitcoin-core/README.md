@@ -5,6 +5,8 @@
 
 Don't just copy and paste.  Understand what you are doing.
 
+Note: We can't change ownership of files if directory is mounted from a vfat filesystem.  You will have to use root user instead of bitcoinuser or set all files in .bitcoin directory to world-writable.
+
 ## Assumptions
 
 [You have a working RPi.](..)
@@ -23,12 +25,14 @@ mkdir ~/.bitcoin
 ```
 
 ## Apply permissions to bitcoin working directory
+(this cannot be done on a vfat mounted filesystem)
 
 ```shell
 sudo chown -R bitcoinuser:pi ~/.bitcoin ; sudo chmod g+ws ~/.bitcoin
 ```
 
 ## (if using existing files): Recursively apply permissions to existing files
+(this cannot be done on a vfat mounted filesystem)
 
 ```shell
 sudo find ~/.bitcoin -type d -exec chmod 2775 {} \; ; sudo find ~/.bitcoin -type f -exec chmod g+rw {} \;
@@ -55,12 +59,6 @@ zmqpubrawtx=tcp://0.0.0.0:29000
 
 ```shell
 docker build -t btcnode --build-arg USER_ID=$(id -u bitcoinuser) --build-arg GROUP_ID=$(id -g bitcoinuser) --build-arg CORE_VERSION="0.16.0" .
-```
-
-## Get docker image ID
-
-```shell
-docker images
 ```
 
 ## Run docker container
