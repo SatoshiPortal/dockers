@@ -47,7 +47,7 @@ txindex=1
 rpcuser=rpcusername
 rpcpassword=rpcpassword
 rpcallowip=10.0.0.0/24
-printtoconsole=1
+#printtoconsole=1
 maxmempool=64
 dbcache=64
 zmqpubrawblock=tcp://0.0.0.0:29000
@@ -58,7 +58,7 @@ zmqpubrawtx=tcp://0.0.0.0:29000
 (replacing Bitcoin Core version by the one you want)
 
 ```shell
-docker build -t btcnode --build-arg USER_ID=$(id -u bitcoinuser) --build-arg GROUP_ID=$(id -g bitcoinuser) --build-arg CORE_VERSION="0.16.0" .
+docker build -t btcnode --build-arg USER_ID=$(id -u bitcoinuser) --build-arg GROUP_ID=$(id -g bitcoinuser) --build-arg CORE_VERSION="0.16.1" .
 ```
 
 ## Run docker container
@@ -70,6 +70,10 @@ docker run -d --rm --mount type=bind,source="$HOME/.bitcoin",target="/bitcoin/.b
 
 ```shell
 docker run -d --rm --mount type=bind,source="$HOME/.bitcoin",target="/bitcoin/.bitcoin" --name SP-BTC01 -p 18333:18333 -p 18332:18332 -p 29000:29000 btcnode bitcoin ./bitcoin-cli getinfo
+```
+
+```shell
+docker run -d --rm --mount type=bind,source="$HOME/.bitcoin/Bitcoin",target="/bitcoin/.bitcoin" --name SP-BTC01 -p 8333:8333 -p 8332:8332 btcnode
 ```
 
 ## If needed, re-apply permissions to newly created files

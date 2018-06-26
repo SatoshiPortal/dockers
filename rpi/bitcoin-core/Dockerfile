@@ -1,3 +1,4 @@
+#x86 FROM debian:latest
 FROM resin/raspberrypi3-debian:stretch
 ARG USER_ID
 ARG GROUP_ID
@@ -5,13 +6,15 @@ ARG CORE_VERSION
 ENV HOME /bitcoin
 ENV USER_ID ${USER_ID:-1000}
 ENV GROUP_ID ${GROUP_ID:-1000}
-ENV CORE_VERSION ${CORE_VERSION:-"0.16.0"}
+ENV CORE_VERSION ${CORE_VERSION:-"0.16.1"}
 
 RUN groupadd -g ${GROUP_ID} bitcoin \
     && useradd -u ${USER_ID} -g bitcoin -s /bin/bash -m -d ${HOME} bitcoin
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gosu \
+#x86		curl \
+#x86		ca-certificates \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN curl -O https://bitcoin.org/bin/bitcoin-core-${CORE_VERSION}/bitcoin-${CORE_VERSION}-arm-linux-gnueabihf.tar.gz \
