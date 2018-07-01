@@ -15,3 +15,13 @@ sudo apt-get install git
 ```shell
 git clone https://github.com/SatoshiPortal/dockers.git
 ```
+
+# TODO
+
+- Update to lnd and c-lightning versions (a lot happens in 2 months!!)
+- A lot of improvements
+- More details in the docs
+
+# Contributions...
+
+...are welcome!  Thanks for the pull requests!
