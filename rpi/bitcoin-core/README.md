@@ -13,10 +13,31 @@ Note: We can't change ownership of files if directory is mounted from a vfat fil
 
 ## Log in RPi (user pi in this document), create bitcoinuser
 
-
 ```shell
 sudo useradd bitcoinuser
 ```
+
+## Mounting... if you want to use an external drive/stick for the blockchain
+
+### If you're stuck with a ntfs external drive...
+
+```shell
+sudo apt-get install ntfs-3g
+```
+
+```shell
+sudo blkid
+/dev/sda1: LABEL="My Passport" UUID="3C02BB6502BB2336" TYPE="ntfs" PARTLABEL="My Passport" PARTUUID="3e1d9372-dada-4a7f-9542-ea32591373fd"
+```
+
+```shell
+mkdir ~/.bitcoin
+sudo mount -t ntfs-3g -o rw,uid=$(id -u bitcoinuser),gid=$(id -g pi),umask=007 /dev/sda1 ~/.bitcoin
+```
+
+### If you're stuck with a fat drive...
+
+Adapt the docs and Dockerfiles so that Docker user root will be used.  Too bad for you.
 
 ## (if not using existing files): Create bitcoin working directory
 
