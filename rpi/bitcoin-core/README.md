@@ -182,3 +182,12 @@ sudo lvdisplay
 ```shell
 echo '/dev/btcVG/btcLV /home/pi/.bitcoin' | sudo tee --append /etc/fstab > /dev/null
 ```
+
+## Adding more space (because the blockchain increases over time)...
+
+```shell
+sudo pvcreate /dev/sdc1
+sudo vgextend btcVG /dev/sdc1
+sudo lvextend /dev/btcVG/btcLV /dev/sdc1
+sudo resize2fs /dev/btcVG/btcLV
+```
