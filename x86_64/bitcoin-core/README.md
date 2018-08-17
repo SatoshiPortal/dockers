@@ -1,5 +1,5 @@
 
-# How to install a Bitcoin Core full node on a RPi using Docker
+# How to install a Bitcoin Core full node on a x86_64 machine using Docker
 
 ## Nota
 
@@ -7,11 +7,7 @@ Don't just copy and paste.  Understand what you are doing.
 
 Note: We can't change ownership of files if directory is mounted from a vfat filesystem.  You will have to use root user instead of bitcoinuser or set all files in .bitcoin directory to world-writable.
 
-## Assumptions
-
-[You have a working RPi.](..)
-
-## Log in RPi (user pi in this document), create bitcoinuser
+## Log in (user debian:debian in this document), create bitcoinuser
 
 ```shell
 sudo useradd bitcoinuser
@@ -32,7 +28,7 @@ sudo blkid
 
 ```shell
 mkdir ~/.bitcoin
-sudo mount -t ntfs-3g -o rw,uid=$(id -u bitcoinuser),gid=$(id -g pi),umask=007 /dev/sda1 ~/.bitcoin
+sudo mount -t ntfs-3g -o rw,uid=$(id -u bitcoinuser),gid=$(id -g debian),umask=007 /dev/sda1 ~/.bitcoin
 ```
 
 ### If you're stuck with a fat drive...
@@ -49,7 +45,7 @@ mkdir ~/.bitcoin
 (this cannot be done on a vfat mounted filesystem)
 
 ```shell
-sudo chown -R bitcoinuser:pi ~/.bitcoin ; sudo chmod g+ws ~/.bitcoin
+sudo chown -R bitcoinuser:debian ~/.bitcoin ; sudo chmod g+ws ~/.bitcoin
 ```
 
 ## (if using existing files): Recursively apply permissions to existing files
