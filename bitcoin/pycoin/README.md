@@ -14,8 +14,8 @@ docker run -it --rm pycoin
 
 See https://github.com/shivaenigma/pycoin
 
-List of the first 100 SegWit addresses for a ypub:
+List of the first 10 SegWit addresses for a pub32:
 
 ```shell
-ku -n BTCY -s 0/0-100 -a E:ypub6QqdH2c5z7966Ki7agdkfJqArdrDyvDDDqBYuqdCSA3Za91EMff9EtCu8VvCRKC1w5w4SGCTpGJo2aR92qhfmYLs5zjuCmTd23q7PoKaXHm
+ku -s 0/0-9 -a E:upub5GtUcgGed1aGH4HKQ3vMYrsmLXwmHhS1AeX33ZvDgZiyvkGhNTvGd2TA5Lr4v239Fzjj4ZY48t6wTtXUy2yRgapf37QHgt6KWEZ6bgsCLpb
 ```
