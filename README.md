@@ -2,6 +2,15 @@
 
 See inside subdirectories for what you are looking for.  Don't be afraid, try, retry and understand what you are doing.
 
+# List
+
+- HW address derivation (segwit, bech32, etc.) https://github.com/SatoshiPortal/dockers/tree/master/bitcoin/hd-wallet-derive
+- Pycoin HW address derivation (segwit, bech32, etc.) 
+- Bitcoin Core x86_64 https://github.com/SatoshiPortal/dockers/tree/master/x86_64/bitcoin-core
+- Bitcoin Core Raspberry Pi https://github.com/SatoshiPortal/dockers/tree/master/rpi/bitcoin-core
+- C-Lightning Network Node for Raspberry PI https://github.com/SatoshiPortal/dockers/tree/master/rpi/LN/c-lightning
+- LND Lighnting Network Node for Rasbperry PI https://github.com/SatoshiPortal/dockers/tree/master/rpi/LN/lnd
+
 **Please submit improvements and post your comments, we definitely want to get better with your help!**
 
 ## Install git to clone this project
