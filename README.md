@@ -27,9 +27,11 @@ git clone https://github.com/SatoshiPortal/dockers.git
 
 # TODO
 
-- Update to lnd and c-lightning versions (a lot happens in 2 months!!)
+- Update LND
 - A lot of improvements
 - More details in the docs
+- Electrum Personal Server
+- Electrum Server
 
 # Contributions...
 
