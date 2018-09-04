@@ -83,18 +83,13 @@ docker build -t btcnode --build-arg USER_ID=$(id -u bitcoinuser) --build-arg GRO
 ```
 
 ## Run docker container
-(replacing `SP-BTC01` by the container name you want)
 
 ```shell
-docker run -d --rm --mount type=bind,source="$HOME/.bitcoin",target="/bitcoin/.bitcoin" --name SP-BTC01 -p 18333:18333 -p 18332:18332 -p 29000:29000 btcnode
+docker run -d --rm --mount type=bind,source="$HOME/.bitcoin",target="/bitcoinuser/.bitcoin" --name btcnode -p 18333:18333 -p 18332:18332 -p 29000:29000 btcnode
 ```
 
 ```shell
-docker run -d --rm --mount type=bind,source="$HOME/.bitcoin",target="/bitcoin/.bitcoin" --name SP-BTC01 -p 18333:18333 -p 18332:18332 -p 29000:29000 btcnode bitcoin ./bitcoin-cli getinfo
-```
-
-```shell
-docker run -d --rm --mount type=bind,source="$HOME/.bitcoin/Bitcoin",target="/bitcoin/.bitcoin" --name SP-BTC01 -p 8333:8333 -p 8332:8332 btcnode
+docker run -d --rm --mount type=bind,source="$HOME/.bitcoin",target="/bitcoinuser/.bitcoin" --name btcnode -p 18333:18333 -p 18332:18332 -p 29000:29000 btcnode bitcoinuser ./bitcoin-cli getinfo
 ```
 
 ## If needed, re-apply permissions to newly created files
@@ -108,7 +103,7 @@ sudo find ~/.bitcoin -type d -exec chmod 2775 {} \; ; sudo find ~/.bitcoin -type
 With `printtoconsole=1` in bitcoin.conf:
 
 ```shell
-docker logs -f SP-BTC01
+docker logs -f btcnode
 ```
 
 Without `printtoconsole=1` in bitcoin.conf:
@@ -120,7 +115,7 @@ sudo tail -f ~/.bitcoin/testnet3/debug.log
 Invoking bitcoin-cli…
 
 ```shell
-docker exec -it SP-BTC01 ./bitcoin-cli getblockchaininfo
+docker exec -it btcnode ./bitcoin-cli getblockchaininfo
 ```
 
 ---

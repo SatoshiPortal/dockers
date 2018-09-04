@@ -14,7 +14,7 @@ cp config ~/.lightning/
 ## Apply permissions to working directories
 
 ```shell
-sudo chown -R lnuser:pi ~/.lightning ; sudo chmod g+ws ~/.lightning
+sudo chown -R lnuser:debian ~/.lightning ; sudo chmod g+ws ~/.lightning
 ```
 
 ## (if using existing files): Recursively apply permissions to existing files

@@ -3,28 +3,28 @@ FROM alpine:3.7 as builder
 # Let's create the builder
 
 RUN apk add --update --no-cache \
-    ca-certificates \
-    autoconf \
-    automake \
-    build-base \
-    libressl \
-    libtool \
-    gmp-dev \
-    python \
-    python-dev \
-    python3 \
-    sqlite-dev \
-    wget \
-    git \
-    file \
-    gnupg \
-    swig \
-    zlib-dev
+     ca-certificates \
+     autoconf \
+     automake \
+     build-base \
+     libressl \
+     libtool \
+     gmp-dev \
+     python \
+     python-dev \
+     python3 \
+     sqlite-dev \
+     wget \
+     git \
+     file \
+     gnupg \
+     swig \
+     zlib-dev
 
 WORKDIR /opt
 
 ARG BITCOIN_VERSION=0.16.2
-ENV BITCOIN_TARBALL bitcoin-$BITCOIN_VERSION-arm-linux-gnueabihf.tar.gz
+ENV BITCOIN_TARBALL bitcoin-$BITCOIN_VERSION-x86_64-linux-gnu.tar.gz
 ENV BITCOIN_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/$BITCOIN_TARBALL
 ENV BITCOIN_ASC_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/SHA256SUMS.asc
 ENV BITCOIN_PGP_KEY 01EA5486DE18A882D4C2684590C8019E36C2E964
@@ -55,16 +55,20 @@ FROM alpine:3.7
 # Taking care of glibc shit (glibc not natively supported by Alpine but Bitcoin Core uses it)
 
 ENV GLIBC_VERSION 2.27-r0
+ENV GLIBC_SHA256 938bceae3b83c53e7fa9cc4135ce45e04aae99256c5e74cf186c794b97473bc7
+ENV GLIBCBIN_SHA256 3a87874e57b9d92e223f3e90356aaea994af67fb76b71bb72abfb809e948d0d6
 # Download and install glibc (https://github.com/jeanblanchard/docker-alpine-glibc/blob/master/Dockerfile)
-RUN apk add --update --no-cache wget \
- && wget -O glibc.apk "https://github.com/yangxuan8282/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" \
- && wget -O glibc-bin.apk "https://github.com/yangxuan8282/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk" \
- && apk add --allow-untrusted --update --no-cache glibc-bin.apk glibc.apk \
+RUN wget -O /etc/apk/keys/sgerrand.rsa.pub https://github.com/sgerrand/alpine-pkg-glibc/releases/download/$GLIBC_VERSION/sgerrand.rsa.pub \
+ && wget -O glibc.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" \
+ && echo "$GLIBC_SHA256  glibc.apk" | sha256sum -c - \
+ && wget -O glibc-bin.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk" \
+ && echo "$GLIBCBIN_SHA256  glibc-bin.apk" | sha256sum -c - \
+ && apk add --update --no-cache glibc-bin.apk glibc.apk \
  && /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib \
  && echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf \
  && rm -rf glibc.apk glibc-bin.apk
 
-RUN apk add --update --no-cache \
+ RUN apk add --update --no-cache \
     gmp-dev \
     sqlite-dev \
     inotify-tools \
