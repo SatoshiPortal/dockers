@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  btcnode-ots:
+    networks:
+      - spbtcnodenet
+
+  nginx:
+    networks:
+      -spbtcnodenet
+
+  nginx-gen:
+    networks:
+      -spbtcnodenet
+
+  nginx-letsencrypt:
+    networks:
+      -spbtcnodenet
+
+  otsnode:
+    networks:
+      - spbtcnodenet
+
+  otsnode-satoshiportal:
+    networks:
+      - spbtcnodenet
+
+
+networks:
+  spbtcnodenet:
+    external: true
