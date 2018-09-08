@@ -6,7 +6,7 @@ We regularily update the existing Dockerfiles and add more. See subdirectories f
 
 **Please submit improvements and post your comments, we definitely want to get better with your help!**
 
-The website folder is for the www.bitcoindockers.com which hosts this repository.
+This repo is hosted at www.bitcoindockers.com
 
 # Features
 
