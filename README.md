@@ -6,6 +6,8 @@ We regularily update the existing Dockerfiles and add more. See subdirectories f
 
 **Please submit improvements and post your comments, we definitely want to get better with your help!**
 
+The website folder is for the www.bitcoindockers.com which hosts this repository.
+
 # Features
 
 - lightweight alpine-based docker containers (runnable on RPi’s and other small devices)
