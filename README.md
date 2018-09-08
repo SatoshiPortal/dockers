@@ -6,6 +6,17 @@ We regularily update the existing Dockerfiles and add more. See subdirectories f
 
 **Please submit improvements and post your comments, we definitely want to get better with your help!**
 
+# Features
+
+- lightweight alpine-based docker containers (runnable on RPi’s and other small devices)
+- using less possible new code, most possible existing OS built-in/well-known softwares
+- using container OS as running platform instead of language-based interpreter
+- encrypting everything through Docker Encrypted Overlay Network
+- distributing everything through Docker Swarm to maximize scallability
+- exposing nothing outside the overlay network
+
+Our philosophy: security, lightweight, performance, security.
+
 # List of Dockerfiles
 
 - **HW address derivation (segwit, bech32, etc.)**: https://github.com/SatoshiPortal/dockers/tree/master/bitcoin/hd-wallet-derive a command-line too to derive bitcoin addresses using master public keys. This is useful for generating Bitcoin receiving addresses.
