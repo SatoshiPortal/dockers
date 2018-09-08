@@ -1,5 +1,4 @@
-# Bitcoin-related Dockerfiles and configurations: making it easy to build Bitcoin secure, efficient and scalable Bitcoin applications!
-## Developped and maintained by SatoshiPortal.com
+# Bitcoin-related Dockerfiles and configurations
 
 This is the public repository of dockerfiles used **in production** by [Satoshi Portal](www.satoshiportal.com) for the Bitcoin applications it develops and operates, including [Bylls](bylls.com) and [Bitcoin Outlet](www.bitcoinoutlet.com).
 
