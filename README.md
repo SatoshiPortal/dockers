@@ -10,6 +10,8 @@ See inside subdirectories for what you are looking for.  Don't be afraid, try, r
 - Bitcoin Core Raspberry Pi https://github.com/SatoshiPortal/dockers/tree/master/rpi/bitcoin-core
 - C-Lightning Network Node for Raspberry PI https://github.com/SatoshiPortal/dockers/tree/master/rpi/LN/c-lightning
 - LND Lighnting Network Node for Rasbperry PI https://github.com/SatoshiPortal/dockers/tree/master/rpi/LN/lnd
+- OpenTimestamp Server: https://github.com/SatoshiPortal/dockers/tree/master/x86_64/ots/otsserver
+- OpenTimestamp Client: https://github.com/SatoshiPortal/dockers/tree/master/x86_64/ots/otsclient
 
 **Please submit improvements and post your comments, we definitely want to get better with your help!**
 
