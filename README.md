@@ -21,7 +21,7 @@ Our philosophy: security, lightweight, performance, security.
 
 # List of Dockerfiles
 
-- **HW address derivation (segwit, bech32, etc.)**: https://github.com/SatoshiPortal/dockers/tree/master/bitcoin/hd-wallet-derive a command-line too to derive bitcoin addresses using master public keys. This is useful for generating Bitcoin receiving addresses.
+- **HD address derivation (segwit, bech32, etc.)**: https://github.com/SatoshiPortal/dockers/tree/master/bitcoin/hd-wallet-derive a command-line too to derive bitcoin addresses using master public keys. This is useful for generating Bitcoin receiving addresses.
 - **Pycoin**: https://github.com/SatoshiPortal/dockers/tree/master/bitcoin/pycoin a crypto-utility useful for deriving Bitcoin addresses in Python.
 - **Bitcoin Core x86_64** https://github.com/SatoshiPortal/dockers/tree/master/x86_64/bitcoin-core the Bitcoin reference implementation (full node) of Bitcoin from [Bitcoin Core](bitcoincore.org)
 - **Bitcoin Core for Raspberry Pi** https://github.com/SatoshiPortal/dockers/tree/master/rpi/bitcoin-core  the Bitcoin reference implementation (full node) of Bitcoin from [Bitcoin Core](bitcoincore.org) **optmized for running on a [Raspberry Pi](www.raspberrypi.org) device**
