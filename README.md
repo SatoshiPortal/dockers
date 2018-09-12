@@ -62,7 +62,7 @@ Thanks for the pull requests :)
 
 For questions and comments please create an issue.
 
-# Wishlihst
+# Wishlist
 
 If you want us to add a docker, please create an issue this way:
 
