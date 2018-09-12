@@ -18,7 +18,7 @@ This repo is hosted at [bitcoindockers.com](http://www.bitcoindockers.com/)
 - Distributing everything through Docker Swarm to maximize scallability
 - Exposing nothing outside the overlay network
 
-Our philosophy: Security, Lightweight, Performance & Security.
+Our philosophy: Security, Lightweight, Performance & Scalability.
 
 <br>
 <hr>
