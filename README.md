@@ -61,3 +61,11 @@ git clone https://github.com/SatoshiPortal/dockers.git
 Thanks for the pull requests :)
 
 For questions and comments please create an issue.
+
+# Wishlihst
+
+If you want us to add a docker, please create an issue this way:
+
+- Paste the source code of the repository you want us to add
+- Tell us why you think this is useful and/or how you (or you think someone else) may want to use it. This will help us prioritize and think of the actual usage.
+- Put the label "wishlist" on the issue.
