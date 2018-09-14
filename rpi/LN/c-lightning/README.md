@@ -46,7 +46,7 @@ network=testnet
 ## Build image
 
 ```shell
-docker build -t clnimg --build-arg USER_ID=$(id -u lnuser) --build-arg GROUP_ID=$(id -g lnuser) .
+docker build -t clnimg --build-arg USER_ID=$(id -u lnuser) --build-arg GROUP_ID=$(id -g lnuser) -f Dockerfile-alpine .
 ```
 
 ## Start LN server in container

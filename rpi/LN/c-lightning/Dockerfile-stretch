@@ -1,0 +1,72 @@
+FROM resin/raspberrypi3-debian:stretch as builder
+
+# Let's create the builder
+
+RUN apt-get update \
+ && apt-get install -y \
+    autoconf automake build-essential git libtool libgmp-dev \
+    libsqlite3-dev python python3 net-tools zlib1g-dev
+
+WORKDIR /opt
+
+ARG BITCOIN_VERSION=0.16.2
+ENV BITCOIN_TARBALL bitcoin-$BITCOIN_VERSION-arm-linux-gnueabihf.tar.gz
+ENV BITCOIN_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/$BITCOIN_TARBALL
+ENV BITCOIN_ASC_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/SHA256SUMS.asc
+ENV BITCOIN_PGP_KEY 01EA5486DE18A882D4C2684590C8019E36C2E964
+
+RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
+ && curl -so $BITCOIN_TARBALL "$BITCOIN_URL" \
+ && gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "$BITCOIN_PGP_KEY" \
+ && curl -so bitcoin.asc "$BITCOIN_ASC_URL" \
+ && gpg --verify bitcoin.asc \
+ && grep $BITCOIN_TARBALL bitcoin.asc | tee SHA256SUMS.asc \
+ && sha256sum -c SHA256SUMS.asc \
+ && BD=bitcoin-$BITCOIN_VERSION/bin \
+ && tar -xzvf $BITCOIN_TARBALL $BD/bitcoin-cli --strip-components=1 \
+ && rm $BITCOIN_TARBALL
+
+WORKDIR /opt/lightningd
+
+ARG DEVELOPER=1
+RUN git clone https://github.com/ElementsProject/lightning.git /opt/lightningd \
+ && git checkout d681eeb2e1bd92ce8c6dd83322f58e7820b1b62d \
+ && ./configure && make -j3 DEVELOPER=${DEVELOPER} && cp lightningd/lightning* cli/lightning-cli /usr/bin/
+
+# Let's create the actual image that will be run
+
+FROM resin/raspberrypi3-debian:stretch
+
+RUN apt-get update \
+ && apt-get install -y \
+    libgmp-dev \
+    libsqlite3-dev \
+    net-tools \
+    zlib1g-dev \
+    libtool \
+    gosu \
+ && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ARG USER_ID
+ARG GROUP_ID
+ENV USERNAME lnuser
+ENV HOME /${USERNAME}
+ENV USER_ID ${USER_ID:-1000}
+ENV GROUP_ID ${GROUP_ID:-1000}
+
+RUN groupadd -g ${GROUP_ID} ${USERNAME} \
+ && useradd -u ${USER_ID} -g ${USERNAME} -s /bin/bash -m -d ${HOME} ${USERNAME}
+
+VOLUME ["${HOME}/.bitcoin", "${HOME}/.lightning"]
+
+COPY --from=builder /opt/lightningd/cli/lightning-cli /usr/bin
+COPY --from=builder /opt/lightningd/lightningd/lightning* /usr/bin/
+COPY --from=builder /opt/bitcoin/bin /usr/bin
+COPY bitcoin.conf ${HOME}/.bitcoin/bitcoin.conf
+RUN chown -R ${USERNAME}:${USERNAME} ${HOME}
+WORKDIR ${HOME}
+
+EXPOSE 9735
+
+ENTRYPOINT ["gosu"]
+CMD ["lnuser","lightningd"]
