@@ -184,5 +184,6 @@ echo '/dev/btcVG/btcLV /home/pi/.bitcoin' | sudo tee --append /etc/fstab > /dev/
 sudo pvcreate /dev/sdc1
 sudo vgextend btcVG /dev/sdc1
 sudo lvextend /dev/btcVG/btcLV /dev/sdc1
+sudo e2fsck -f /dev/btcVG/btcLV
 sudo resize2fs /dev/btcVG/btcLV
 ```
