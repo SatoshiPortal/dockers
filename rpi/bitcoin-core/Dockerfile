@@ -30,6 +30,7 @@ RUN addgroup -g ${GROUP_ID} ${USERNAME} \
     && adduser -u ${USER_ID} -G ${USERNAME} -D -s /bin/sh -h ${HOME} ${USERNAME}
 
 RUN apk add --no-cache \
+    curl \
     su-exec \
     gnupg
 
