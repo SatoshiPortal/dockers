@@ -22,7 +22,7 @@ ENV USERNAME bitcoinuser
 ENV HOME /${USERNAME}
 ENV USER_ID ${USER_ID:-1000}
 ENV GROUP_ID ${GROUP_ID:-1000}
-ENV CORE_VERSION ${CORE_VERSION:-"0.16.2"}
+ENV CORE_VERSION ${CORE_VERSION:-"0.16.3"}
 ENV TARBALL bitcoin-${CORE_VERSION}-arm-linux-gnueabihf.tar.gz
 ENV URL https://bitcoincore.org/bin/bitcoin-core-${CORE_VERSION}
 
