@@ -30,7 +30,6 @@ WORKDIR /opt/lightningd
 
 ARG DEVELOPER=1
 RUN git clone https://github.com/ElementsProject/lightning.git /opt/lightningd \
- && git checkout d681eeb2e1bd92ce8c6dd83322f58e7820b1b62d \
  && ./configure && make -j3 DEVELOPER=${DEVELOPER} && cp lightningd/lightning* cli/lightning-cli /usr/bin/
 
 # Let's create the actual image that will be run

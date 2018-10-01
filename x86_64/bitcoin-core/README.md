@@ -75,7 +75,7 @@ zmqpubrawtx=tcp://0.0.0.0:29000
 (replacing Bitcoin Core version by the one you want)
 
 ```shell
-docker build -t btcnode --build-arg USER_ID=$(id -u bitcoinuser) --build-arg GROUP_ID=$(id -g bitcoinuser) --build-arg CORE_VERSION="0.16.2" .
+docker build -t btcnode --build-arg USER_ID=$(id -u bitcoinuser) --build-arg GROUP_ID=$(id -g bitcoinuser) --build-arg CORE_VERSION="0.16.3" .
 ```
 
 ## Run docker container
