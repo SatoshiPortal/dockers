@@ -7,20 +7,20 @@
 ## (if not using existing files): Create lightning and bitcoin working directories
 
 ```shell
-mkdir ~/.lightning
-cp config ~/.lightning/
+mkdir -m 2770 -p ~/lndata
+cp config ~/lndata
 ```
 
 ## Apply permissions to working directories
 
 ```shell
-sudo chown -R lnuser:pi ~/.lightning ; sudo chmod g+ws ~/.lightning
+sudo chown -R lnuser:pi ~/lndata
 ```
 
 ## (if using existing files): Recursively apply permissions to existing files
 
 ```shell
-sudo find ~/.lightning -type d -exec chmod 2775 {} \; ; sudo find ~/.lightning -type f -exec chmod g+rw {} \;
+sudo find ~/lndata -type f -exec chmod g+rw {} \; ; sudo find ~/lndata -type d -exec chmod g+rwx {} \;
 ```
 
 ## Edit file bitcoin.conf (will be .bitcoin/bitcoin.conf)
@@ -46,19 +46,19 @@ network=testnet
 ## Build image
 
 ```shell
-docker build -t clnimg --build-arg USER_ID=$(id -u lnuser) --build-arg GROUP_ID=$(id -g lnuser) -f Dockerfile-alpine .
+docker build -t clnimg -f Dockerfile-alpine .
 ```
 
 ## Start LN server in container
 
 ```shell
-docker run -d --rm --name cln --mount type=bind,source="$HOME/.lightning",target="/lnuser/.lightning" -p 9735:9735 clnimg
+docker run -d --rm --name cln -p 9735:9735 -v /home/pi/lndata:/.lightning clnimg `id -u lnuser`:`id -g lnuser` lightningd
 ```
 
 ## If needed, re-apply permissions to newly created files
 
 ```shell
-sudo find ~/.lightning -type d -exec chmod 2775 {} \; ; sudo find ~/.lightning -type f -exec chmod g+rw {} \;
+sudo find ~/lndata -type f -exec chmod g+rw {} \; ; sudo find ~/lndata -type d -exec chmod g+rwx {} \;
 ```
 
 ## To get the node public key, type

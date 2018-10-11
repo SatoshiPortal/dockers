@@ -18,40 +18,42 @@ RUN wget -O /etc/apk/keys/sgerrand.rsa.pub https://github.com/sgerrand/alpine-pk
 
 # Now let's install Bitcoin Core
 
-ARG USER_ID
-ARG GROUP_ID
-ARG CORE_VERSION
+#ARG USER_ID
+#ARG GROUP_ID
+ARG CORE_VERSION="0.16.3"
 
-ENV USERNAME bitcoinuser
-ENV HOME /${USERNAME}
-ENV USER_ID ${USER_ID:-1000}
-ENV GROUP_ID ${GROUP_ID:-1000}
-ENV CORE_VERSION ${CORE_VERSION:-"0.16.3"}
+#ENV USERNAME bitcoinuser
+#ENV HOME /${USERNAME}
+#ENV USER_ID ${USER_ID:-1000}
+#ENV GROUP_ID ${GROUP_ID:-1000}
+#ENV CORE_VERSION ${CORE_VERSION:-"0.16.3"}
 ENV TARBALL bitcoin-${CORE_VERSION}-x86_64-linux-gnu.tar.gz
 ENV URL https://bitcoincore.org/bin/bitcoin-core-${CORE_VERSION}
 
-RUN addgroup -g ${GROUP_ID} ${USERNAME} \
-    && adduser -u ${USER_ID} -G ${USERNAME} -D -s /bin/sh -h ${HOME} ${USERNAME}
+#RUN addgroup -g ${GROUP_ID} ${USERNAME} \
+#    && adduser -u ${USER_ID} -G ${USERNAME} -D -s /bin/sh -h ${HOME} ${USERNAME}
 
 RUN apk add --no-cache \
     curl \
     su-exec \
     gnupg
 
-VOLUME ["${HOME}/.bitcoin"]
+VOLUME ["/.bitcoin"]
+
+WORKDIR /usr/bin
 
 RUN wget ${URL}/SHA256SUMS.asc \
  && gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "01EA5486DE18A882D4C2684590C8019E36C2E964" \
  && gpg --verify SHA256SUMS.asc \
  && wget ${URL}/${TARBALL} \
  && grep ${TARBALL} SHA256SUMS.asc | sha256sum -c - \
- && tar -xzC ${HOME} -f ${TARBALL} \
+ && tar -xzC . -f ${TARBALL} bitcoin-${CORE_VERSION}/bin/bitcoind bitcoin-${CORE_VERSION}/bin/bitcoin-cli --strip-components=2 \
  && rm -rf ${TARBALL} SHA256SUMS.asc \
- && chown -R ${USERNAME}:${USERNAME} ${HOME} \
+# && chown -R ${USERNAME}:${USERNAME} ${HOME} \
  && apk del gnupg
 
 EXPOSE 8332 8333 18332 18333 29000
-WORKDIR ${HOME}/bitcoin-${CORE_VERSION}/bin
+#WORKDIR ${HOME}/bitcoin-${CORE_VERSION}/bin
 
 ENTRYPOINT ["su-exec"]
-CMD ["bitcoinuser","./bitcoind"]
+#CMD ["bitcoinuser","./bitcoind"]
