@@ -14,40 +14,30 @@ RUN apk add --update --no-cache wget \
 
 # Now let's install Bitcoin Core
 
-ARG USER_ID
-ARG GROUP_ID
-ARG CORE_VERSION
-
-ENV USERNAME bitcoinuser
-ENV HOME /${USERNAME}
-ENV USER_ID ${USER_ID:-1000}
-ENV GROUP_ID ${GROUP_ID:-1000}
-ENV CORE_VERSION ${CORE_VERSION:-"0.16.3"}
+ARG CORE_VERSION="0.16.3"
 ENV TARBALL bitcoin-${CORE_VERSION}-arm-linux-gnueabihf.tar.gz
 ENV URL https://bitcoincore.org/bin/bitcoin-core-${CORE_VERSION}
 
-RUN addgroup -g ${GROUP_ID} ${USERNAME} \
-    && adduser -u ${USER_ID} -G ${USERNAME} -D -s /bin/sh -h ${HOME} ${USERNAME}
-
-RUN apk add --no-cache \
+RUN apk add --update --no-cache \
     curl \
     su-exec \
     gnupg
 
-VOLUME ["${HOME}/.bitcoin"]
+WORKDIR /usr/bin
 
 RUN wget ${URL}/SHA256SUMS.asc \
  && gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "01EA5486DE18A882D4C2684590C8019E36C2E964" \
  && gpg --verify SHA256SUMS.asc \
  && wget ${URL}/${TARBALL} \
  && grep ${TARBALL} SHA256SUMS.asc | sha256sum -c - \
- && tar -xzC ${HOME} -f ${TARBALL} \
+ && tar -xzC . -f ${TARBALL} bitcoin-${CORE_VERSION}/bin/bitcoind bitcoin-${CORE_VERSION}/bin/bitcoin-cli --strip-components=2 \
  && rm -rf ${TARBALL} SHA256SUMS.asc \
- && chown -R ${USERNAME}:${USERNAME} ${HOME} \
  && apk del gnupg
 
 EXPOSE 8332 8333 18332 18333 29000
-WORKDIR ${HOME}/bitcoin-${CORE_VERSION}/bin
+#WORKDIR /
 
 ENTRYPOINT ["su-exec"]
-CMD ["bitcoinuser","./bitcoind"]
+
+# mkdir /home/pi/btcdata ; sudo chown bitcoinuser:bitcoinuser /home/pi/btcdata
+# docker run --rm -d -v /home/pi/btcdata:/.bitcoin b3 `id -u bitcoinuser`:`id -g bitcoinuser` bitcoind

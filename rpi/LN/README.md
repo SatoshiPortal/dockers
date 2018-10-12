@@ -2,12 +2,11 @@
 
 ## Lightning Network Node
 
-There are at least 4 implementations of a lightning network node:
+There are at least 3 implementations of a lightning network node:
 
 - c-lightning (Blockstream)
 - lnd (Lightning Labs)
 - eclair (Eclair)
-- lit (mit-dci)
 
 Let’s run all of them each in a Docker container, on a Raspberry Pi!
 

@@ -27,8 +27,8 @@ sudo blkid
 ```
 
 ```shell
-mkdir ~/.bitcoin
-sudo mount -t ntfs-3g -o rw,uid=$(id -u bitcoinuser),gid=$(id -g debian),umask=007 /dev/sda1 ~/.bitcoin
+mkdir -m 2770 -p ~/btcdata
+sudo mount -t ntfs-3g -o rw,uid=$(id -u bitcoinuser),gid=$(id -g debian),umask=007 /dev/sda1 ~/btcdata
 ```
 
 ### If you're stuck with a fat drive...
@@ -38,24 +38,24 @@ Adapt the docs and Dockerfiles so that Docker user root will be used.  Too bad f
 ## (if not using existing files): Create bitcoin working directory
 
 ```shell
-mkdir ~/.bitcoin
+mkdir -m 2770 -p ~/btcdata
 ```
 
 ## Apply permissions to bitcoin working directory
 (this cannot be done on a vfat mounted filesystem)
 
 ```shell
-sudo chown -R bitcoinuser:debian ~/.bitcoin ; sudo chmod g+ws ~/.bitcoin
+sudo chown -R bitcoinuser:debian ~/btcdata
 ```
 
 ## (if using existing files): Recursively apply permissions to existing files
 (this cannot be done on a vfat mounted filesystem)
 
 ```shell
-sudo find ~/.bitcoin -type d -exec chmod 2775 {} \; ; sudo find ~/.bitcoin -type f -exec chmod g+rw {} \;
+sudo find ~/btcdata -type f -exec chmod g+rw {} \; ; sudo find ~/btcdata -type d -exec chmod g+rwx {} \;
 ```
 
-## Create bitcoin.conf in ~/.bitcoin/ with following content:
+## Create bitcoin.conf in ~/btcdata/ with following content:
 (replacing `rpcusername`, `rpcpassword`, `10.0.0.0/24` and others by your actual values)
 
 ```properties
@@ -75,23 +75,19 @@ zmqpubrawtx=tcp://0.0.0.0:29000
 (replacing Bitcoin Core version by the one you want)
 
 ```shell
-docker build -t btcnode --build-arg USER_ID=$(id -u bitcoinuser) --build-arg GROUP_ID=$(id -g bitcoinuser) --build-arg CORE_VERSION="0.16.3" .
+docker build -t btcnode .
 ```
 
 ## Run docker container
 
 ```shell
-docker run -d --rm --mount type=bind,source="$HOME/.bitcoin",target="/bitcoinuser/.bitcoin" --name btcnode -p 18333:18333 -p 18332:18332 -p 29000:29000 btcnode
-```
-
-```shell
-docker run -d --rm --mount type=bind,source="$HOME/.bitcoin",target="/bitcoinuser/.bitcoin" --name btcnode -p 18333:18333 -p 18332:18332 -p 29000:29000 btcnode bitcoinuser ./bitcoin-cli getinfo
+docker run --rm -d --name btcnode -p 18333:18333 -p 18332:18332 -p 29000:29000 -v /home/pi/btcdata:/.bitcoin btcnode `id -u bitcoinuser`:`id -g bitcoinuser` bitcoind
 ```
 
 ## If needed, re-apply permissions to newly created files
 
 ```shell
-sudo find ~/.bitcoin -type d -exec chmod 2775 {} \; ; sudo find ~/.bitcoin -type f -exec chmod g+rw {} \;
+sudo find ~/btcdata -type f -exec chmod g+rw {} \; ; sudo find ~/btcdata -type d -exec chmod g+rwx {} \;
 ```
 
 ## Show logs or info
@@ -105,13 +101,13 @@ docker logs -f btcnode
 Without `printtoconsole=1` in bitcoin.conf:
 
 ```shell
-sudo tail -f ~/.bitcoin/testnet3/debug.log
+sudo tail -f ~/btcdata/testnet3/debug.log
 ```
 
 Invoking bitcoin-cli…
 
 ```shell
-docker exec -it btcnode ./bitcoin-cli getblockchaininfo
+docker exec -it btcnode bitcoin-cli -datadir=/.bitcoin stop
 ```
 
 ---
@@ -164,14 +160,14 @@ sudo fsck /dev/btcVG/btcLV
 ## Mount new volume for our .bitcoin directory
 
 ```shell
-sudo mount /dev/btcVG/btcLV ~/.bitcoin
+sudo mount /dev/btcVG/btcLV ~/btcdata
 sudo lvdisplay
 ```
 
 ## Adding the mounting instruction in fstab is a good idea
 
 ```shell
-echo '/dev/btcVG/btcLV /home/debian/.bitcoin' | sudo tee --append /etc/fstab > /dev/null
+echo '/dev/btcVG/btcLV /home/debian/btcdata' | sudo tee --append /etc/fstab > /dev/null
 ```
 
 ## Adding more space (because the blockchain increases over time)...
@@ -180,5 +176,6 @@ echo '/dev/btcVG/btcLV /home/debian/.bitcoin' | sudo tee --append /etc/fstab > /
 sudo pvcreate /dev/sdc1
 sudo vgextend btcVG /dev/sdc1
 sudo lvextend /dev/btcVG/btcLV /dev/sdc1
+sudo e2fsck -f /dev/btcVG/btcLV
 sudo resize2fs /dev/btcVG/btcLV
 ```
