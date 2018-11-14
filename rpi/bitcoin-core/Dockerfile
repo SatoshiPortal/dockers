@@ -40,4 +40,4 @@ EXPOSE 8332 8333 18332 18333 29000
 ENTRYPOINT ["su-exec"]
 
 # mkdir /home/pi/btcdata ; sudo chown bitcoinuser:bitcoinuser /home/pi/btcdata
-# docker run --rm -d -v /home/pi/btcdata:/.bitcoin b3 `id -u bitcoinuser`:`id -g bitcoinuser` bitcoind
+# docker run --rm -d -v /home/pi/btcdata:/.bitcoin btcnode `id -u bitcoinuser`:`id -g bitcoinuser` bitcoind

@@ -138,7 +138,6 @@ dd if=/dev/random of=~/otsd/otsserver02/calendar/hmac-key bs=32 count=1
 ```shell
 sudo chown -R otsuser:debian ~/otsd ; sudo chmod g+ws ~/otsd
 sudo find ~/otsd -type d -exec chmod 2775 {} \; ; sudo find ~/otsd -type f -exec chmod g+rw {} \;
-git clone https://github.com/SatoshiPortal/ots.git
 git clone https://github.com/SatoshiPortal/dockers.git
 vi dockers/x86_64/ots/otsserver/Dockerfile
 docker build -t otsserver --build-arg USER_ID=$(id -u otsuser) --build-arg GROUP_ID=$(id -g otsuser) dockers/x86_64/ots/otsserver/.
