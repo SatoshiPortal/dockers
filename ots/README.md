@@ -1,4 +1,4 @@
-# OTS setup
+# OTS setup on x86
 
 ## Bitcoin Node
 

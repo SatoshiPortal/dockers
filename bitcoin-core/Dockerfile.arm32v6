@@ -1,4 +1,4 @@
-FROM alpine
+FROM alpine:3.8
 
 # Taking care of glibc shit (glibc not natively supported by Alpine but Bitcoin Core uses it)
 
@@ -14,7 +14,7 @@ RUN apk add --update --no-cache wget \
 
 # Now let's install Bitcoin Core
 
-ARG CORE_VERSION="0.16.3"
+ARG CORE_VERSION="0.17.0"
 ENV TARBALL bitcoin-${CORE_VERSION}-arm-linux-gnueabihf.tar.gz
 ENV URL https://bitcoincore.org/bin/bitcoin-core-${CORE_VERSION}
 
