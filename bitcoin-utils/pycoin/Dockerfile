@@ -1,4 +1,3 @@
-#RPi FROM resin/raspberry-pi-alpine-python:3.6
 FROM python:3.6-alpine3.8
 
 RUN apk add --update --no-cache git \

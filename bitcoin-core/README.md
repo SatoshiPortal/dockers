@@ -1,5 +1,5 @@
 
-# How to install a Bitcoin Core full node on a RPi using Docker
+# How to install a Bitcoin Core full node on a Linux machine using Docker
 
 ## Nota
 
@@ -7,11 +7,11 @@ Don't just copy and paste.  Understand what you are doing.
 
 Note: We can't change ownership of files if directory is mounted from a vfat filesystem.  You will have to use root user instead of bitcoinuser or set all files in .bitcoin directory to world-writable.
 
-## Assumptions
+## Assumptions if on RPi
 
-[You have a working RPi.](..)
+[You have a working RPi.](../README-RPi.md)
 
-## Log in RPi (user pi in this document), create bitcoinuser
+## Log in with a sudoer, create bitcoinuser
 
 ```shell
 sudo useradd bitcoinuser
@@ -32,7 +32,7 @@ sudo blkid
 
 ```shell
 mkdir -m 2770 -p ~/btcdata
-sudo mount -t ntfs-3g -o rw,uid=$(id -u bitcoinuser),gid=$(id -g pi),umask=007 /dev/sda1 ~/btcdata
+sudo mount -t ntfs-3g -o rw,uid=$(id -u bitcoinuser),gid=$(id -g),umask=007 /dev/sda1 ~/btcdata
 ```
 
 ### If you're stuck with a fat drive...
@@ -49,7 +49,7 @@ mkdir -m 2770 -p ~/btcdata
 (this cannot be done on a vfat mounted filesystem)
 
 ```shell
-sudo chown -R bitcoinuser:pi ~/btcdata
+sudo chown -R bitcoinuser:`id -gn` ~/btcdata
 ```
 
 ## (if using existing files): Recursively apply permissions to existing files
@@ -171,7 +171,7 @@ sudo lvdisplay
 ## Adding the mounting instruction in fstab is a good idea
 
 ```shell
-echo '/dev/btcVG/btcLV /home/pi/btcdata' | sudo tee --append /etc/fstab > /dev/null
+echo "/dev/btcVG/btcLV ${HOME}/btcdata" | sudo tee --append /etc/fstab > /dev/null
 ```
 
 ## Adding more space (because the blockchain increases over time)...

@@ -1,4 +1,4 @@
-FROM php:alpine
+FROM php:alpine3.8
 
 RUN apk add --update --no-cache git gmp gmp-dev \
 && cd && git clone https://github.com/dan-da/hd-wallet-derive.git \

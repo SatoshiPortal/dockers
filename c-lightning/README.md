@@ -1,8 +1,16 @@
 # C-lightning LN implementation
 
-## Assumptions
+## Assumptions if on RPi
 
-[Your lightning network user is created.](..)
+[You have a working RPi.](../README-RPi.md)
+
+## Create lnuser that will run the processes
+
+Log in and:
+
+```shell
+sudo useradd lnuser
+```
 
 ## (if not using existing files): Create lightning and bitcoin working directories
 
@@ -14,7 +22,7 @@ cp config ~/lndata
 ## Apply permissions to working directories
 
 ```shell
-sudo chown -R lnuser:debian ~/lndata
+sudo chown -R lnuser:`id -gn` ~/lndata
 ```
 
 ## (if using existing files): Recursively apply permissions to existing files
