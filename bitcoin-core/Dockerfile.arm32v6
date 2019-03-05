@@ -14,7 +14,7 @@ RUN apk add --update --no-cache wget \
 
 # Now let's install Bitcoin Core
 
-ARG CORE_VERSION="0.17.0"
+ARG CORE_VERSION="0.17.1"
 ENV TARBALL bitcoin-${CORE_VERSION}-arm-linux-gnueabihf.tar.gz
 ENV URL https://bitcoincore.org/bin/bitcoin-core-${CORE_VERSION}
 
