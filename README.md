@@ -25,12 +25,12 @@ Our philosophy: Security, Lightweight, Performance & Scalability.
 
 # List of Dockerfiles
 
-- [**HD address derivation (segwit, bech32, etc.)**:](https://github.com/SatoshiPortal/dockers/tree/master/bitcoin/hd-wallet-derive) a command-line too to derive bitcoin addresses using master public keys. This is useful for generating Bitcoin receiving addresses.
+- [**HD address derivation (segwit, bech32, etc.)**:](https://github.com/SatoshiPortal/dockers/tree/master/bitcoin/hd-wallet-derive) a command-line tool to derive bitcoin addresses using master public keys. This is useful for generating Bitcoin receiving addresses.
 - [**Pycoin**:](https://github.com/SatoshiPortal/dockers/tree/master/bitcoin/pycoin) a crypto-utility useful for deriving Bitcoin addresses in Python.
-- [**Bitcoin Core x86_64**:](https://github.com/SatoshiPortal/dockers/tree/master/x86_64/bitcoin-core)  the Bitcoin reference implementation (full node) of Bitcoin from [Bitcoin Core](https://bitcoincore.org/)
-- [**Bitcoin Core for Raspberry Pi**:](https://github.com/SatoshiPortal/dockers/tree/master/rpi/bitcoin-core)   the Bitcoin reference implementation (full node) of Bitcoin from [Bitcoin Core](https://bitcoincore.org/) **optmized for running on a [Raspberry Pi](https://www.raspberrypi.org/) device**
-- [**C-Lightning**:](https://github.com/SatoshiPortal/dockers/tree/master/rpi/LN/c-lightning)  one of the major Lightning Network implementations **optmized for running on a [Raspberry Pi](https://www.raspberrypi.org/) device**
-- [**LND Lighnting Network Node**](https://github.com/SatoshiPortal/dockers/tree/master/rpi/LN/lnd)  one of the major Lightning Network implementations **optmized for running on a [Raspberry Pi](https://www.raspberrypi.org/) device**
+- [**Bitcoin Core x86_64**:](https://github.com/SatoshiPortal/dockers/tree/master/x86_64/bitcoin-core) the Bitcoin reference implementation (full node) of Bitcoin from [Bitcoin Core](https://bitcoincore.org/)
+- [**Bitcoin Core for Raspberry Pi**:](https://github.com/SatoshiPortal/dockers/tree/master/rpi/bitcoin-core) the Bitcoin reference implementation (full node) of Bitcoin from [Bitcoin Core](https://bitcoincore.org/) **optimized for running on a [Raspberry Pi](https://www.raspberrypi.org/) device**
+- [**C-Lightning**:](https://github.com/SatoshiPortal/dockers/tree/master/rpi/LN/c-lightning) one of the major Lightning Network implementations **optimized for running on a [Raspberry Pi](https://www.raspberrypi.org/) device**
+- [**LND Lightning Network Node**](https://github.com/SatoshiPortal/dockers/tree/master/rpi/LN/lnd) one of the major Lightning Network implementations **optimized for running on a [Raspberry Pi](https://www.raspberrypi.org/) device**
 - [**OpenTimestamp Server**:](https://github.com/SatoshiPortal/dockers/tree/master/x86_64/ots/otsserver) a network calendar and aggregation utility service for scalable timestamping of hashed data using the Bitcoin blockchain as a notary, from [Open Timestamps](https://www.opentimestamps.org/)
 - [**OpenTimestamp Client**:](https://github.com/SatoshiPortal/dockers/tree/master/x86_64/ots/otsclient) software to communicate with OTS server and Bitcoin Core to generate and verify timestamps compliant with the [Open Timestamps](https://www.opentimestamps.org/) protocol
 
