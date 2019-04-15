@@ -37,8 +37,8 @@ RUN wget ${URL}/SHA256SUMS.asc \
 ENV LIGHTNINGD_VERSION=master
 
 ARG DEVELOPER=1
-RUN git clone -b v0.7.0 --single-branch https://github.com/ElementsProject/lightning.git \
- && cd lightning && ./configure && make -j3 DEVELOPER=${DEVELOPER}
+RUN git clone -b v0.7.0 --single-branch --recursive https://github.com/ElementsProject/lightning.git \
+&& cd lightning && ./configure --prefix=/tmp/lightning_install && make -j3 DEVELOPER=${DEVELOPER} && make install
 
 # Let's create the actual image that will be run
 
@@ -74,9 +74,7 @@ ENV LIGHTNINGD_RPC_PORT=9835
 
 VOLUME ["/.bitcoin", "/.lightning"]
 
-COPY --from=builder /lightning/cli/lightning-cli /usr/bin
-COPY --from=builder /lightning/lightningd/lightning* /usr/bin/
-COPY --from=builder /lightning/plugins/pay /usr/libexec/c-lightning/plugins/
+COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=builder /bitcoin-cli /usr/bin
 COPY bitcoin.conf /.bitcoin/bitcoin.conf
 
