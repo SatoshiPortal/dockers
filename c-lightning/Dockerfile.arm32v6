@@ -73,7 +73,7 @@ ENV LIGHTNINGD_RPC_PORT=9835
 
 VOLUME ["/.bitcoin", "/.lightning"]
 
-COPY --from=builder /tmp/lightning_install/ /usr/bin/
+COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=builder /bitcoin-cli /usr/bin
 COPY bitcoin.conf /.bitcoin/bitcoin.conf
 
