@@ -79,8 +79,9 @@ zmqpubrawtx=tcp://0.0.0.0:29000
 (replacing Bitcoin Core version by the one you want)
 
 ```shell
-docker build -t btcnode -f Dockerfile.arm32v6 .
-docker build -t btcnode -f Dockerfile.amd64 .
+docker build -t btcnode --build-arg ARCH=x86_64 .
+docker build -t btcnode --build-arg ARCH=arm .
+docker build -t btcnode --build-arg ARCH=aarch64 .
 ```
 
 ## Run docker container

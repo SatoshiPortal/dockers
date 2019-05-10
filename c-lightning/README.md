@@ -54,8 +54,7 @@ network=testnet
 ## Build image
 
 ```shell
-docker build -t clnimg -f Dockerfile.arm32v6 .
-docker build -t clnimg -f Dockerfile.amd64 .
+docker build -t clnimg .
 ```
 
 ## Start LN server in container
