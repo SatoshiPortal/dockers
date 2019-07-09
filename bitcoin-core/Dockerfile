@@ -1,6 +1,6 @@
 FROM cyphernode/alpine-glibc-base:3.8
 
-ARG CORE_VERSION="0.17.1"
+ARG CORE_VERSION="0.18.0"
 
 # x86_64, arm or aarch64
 ARG ARCH
@@ -16,7 +16,7 @@ VOLUME ["/.bitcoin"]
 WORKDIR /usr/bin
 
 RUN wget ${URL}/SHA256SUMS.asc \
- && gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "01EA5486DE18A882D4C2684590C8019E36C2E964" \
+ && gpg --recv-keys "01EA5486DE18A882D4C2684590C8019E36C2E964" \
  && gpg --verify SHA256SUMS.asc \
  && GNU=$([ "${ARCH}" = "arm" ] && echo eabihf || true) \
  && TARBALL=bitcoin-${CORE_VERSION}-${ARCH}-linux-gnu${GNU}.tar.gz \
