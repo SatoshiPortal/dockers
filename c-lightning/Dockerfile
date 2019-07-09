@@ -3,6 +3,7 @@ FROM alpine:3.8 as builder
 ARG CLN_VERSION="v0.7.1"
 
 RUN apk add --update --no-cache \
+    asciidoc \
     ca-certificates \
     autoconf \
     automake \
