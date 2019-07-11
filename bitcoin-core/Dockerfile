@@ -26,6 +26,7 @@ RUN wget ${URL}/SHA256SUMS.asc \
  && rm -rf $TARBALL SHA256SUMS.asc \
  && apk del gnupg
 
+ENV HOME /
 EXPOSE 8332 8333 18332 18333 29000
 
 ENTRYPOINT ["su-exec"]
