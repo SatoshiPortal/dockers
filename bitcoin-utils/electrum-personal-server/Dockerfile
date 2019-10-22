@@ -1,7 +1,7 @@
 FROM python:alpine
 
 # Get belchers pubkey
-RUN wget https://raw.githubusercontent.com/chris-belcher/electrum-personal-server/master/pgp/pubkeys/belcher.asc
+RUN wget https://raw.githubusercontent.com/chris-belcher/electrum-personal-server/master/docs/pubkeys/belcher.asc
 
 # Latest release of electum private server from https://github.com/chris-belcher/electrum-personal-server/releases
 ENV VERSION 0.1.6
