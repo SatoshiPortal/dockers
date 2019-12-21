@@ -1,6 +1,6 @@
 FROM cyphernode/alpine-glibc-base:3.8
 
-ARG CORE_VERSION="0.18.0"
+ARG CORE_VERSION="0.19.0.1"
 
 # x86_64, arm or aarch64
 ARG ARCH
