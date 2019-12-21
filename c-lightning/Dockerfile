@@ -27,6 +27,7 @@ RUN apk add --update --no-cache \
 ARG DEVELOPER=1
 RUN git clone -b ${CLN_VERSION} --single-branch --recursive https://github.com/ElementsProject/lightning.git \
  && cd lightning \
+ && pip3 install -r doc/requirements.txt \
  && ./configure --prefix=/tmp/lightning_install \
  && make -j3 DEVELOPER=${DEVELOPER} \
  && make install
