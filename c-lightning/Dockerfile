@@ -1,6 +1,6 @@
-FROM alpine:3.8 as builder
+FROM alpine:3.11.0 as builder
 
-ARG CLN_VERSION="v0.7.1"
+ARG CLN_VERSION="v0.8.0"
 
 RUN apk add --update --no-cache \
     asciidoc \
@@ -11,9 +11,11 @@ RUN apk add --update --no-cache \
     libressl \
     libtool \
     gmp-dev \
+    gettext \
     python \
     python-dev \
     python3 \
+    py3-mako \
     sqlite-dev \
     wget \
     git \
@@ -31,7 +33,7 @@ RUN git clone -b ${CLN_VERSION} --single-branch --recursive https://github.com/E
 
 # Let's create the actual image that will be run
 
-FROM cyphernode/alpine-glibc-base:3.8
+FROM cyphernode/alpine-glibc-base:3.11.0_2.29-0
 
 RUN apk add --update --no-cache \
     gmp-dev \
@@ -48,7 +50,7 @@ ENV LIGHTNINGD_RPC_PORT=9835
 VOLUME ["/.bitcoin", "/.lightning"]
 
 COPY --from=builder /tmp/lightning_install/ /usr/local/
-COPY --from=cyphernode/bitcoin:v0.18.0 /usr/bin/bitcoin-cli /usr/bin
+COPY --from=cyphernode/bitcoin:v0.19.0.1 /usr/bin/bitcoin-cli /usr/bin
 COPY bitcoin.conf /.bitcoin/bitcoin.conf
 
 EXPOSE 9735

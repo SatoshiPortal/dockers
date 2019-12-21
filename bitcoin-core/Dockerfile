@@ -1,4 +1,4 @@
-FROM cyphernode/alpine-glibc-base:3.8
+FROM cyphernode/alpine-glibc-base:3.11.0_2.29-0
 
 ARG CORE_VERSION="0.19.0.1"
 
