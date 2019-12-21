@@ -33,7 +33,7 @@ RUN git clone -b ${CLN_VERSION} --single-branch --recursive https://github.com/E
 
 # Let's create the actual image that will be run
 
-FROM cyphernode/alpine-glibc-base:3.11.0_2.29-0
+FROM cyphernode/alpine-glibc-base:v3.11.0_2.29-0
 
 RUN apk add --update --no-cache \
     gmp-dev \
