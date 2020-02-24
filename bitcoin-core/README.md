@@ -170,6 +170,14 @@ sudo mount /dev/btcVG/btcLV ~/btcdata
 sudo lvdisplay
 ```
 
+## Unplug your device
+
+```shell
+sudo umount ~/btcdata
+sudo vgchange -an btcVG
+sudo lvdisplay
+```
+
 ## Adding the mounting instruction in fstab is a good idea
 
 ```shell

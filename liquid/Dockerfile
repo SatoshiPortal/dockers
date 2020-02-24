@@ -1,6 +1,6 @@
 FROM cyphernode/alpine-glibc-base:v3.11.0_2.29-0
 
-ARG ELEMENTS_VERSION="0.18.1.3"
+ARG ELEMENTS_VERSION="0.18.1.5"
 
 # x86_64, arm or aarch64
 ARG ARCH
@@ -22,7 +22,7 @@ VOLUME ["/.elements"]
 WORKDIR /usr/bin
 
 RUN wget ${URL}/SHA256SUMS.asc \
- && gpg --recv-keys 17A985E3CF2C185F6FA87E95F3F68E2D86A48FDB \
+ && gpg --recv-keys 11D43A27826A421212108BF66BE2CED14A9917BC DE10E82629A8CAD55B700B972F2A88D7F8D68E87 \
  && gpg --verify SHA256SUMS.asc \
  && GNU=$([ "${ARCH}" = "arm" ] && echo eabihf || true) \
  && TARBALL=elements-${ELEMENTS_VERSION}-${ARCH}-linux-gnu${GNU}.tar.gz \
