@@ -1,6 +1,6 @@
 FROM alpine:3.11.0 as builder
 
-ARG CLN_VERSION="v0.8.0"
+ARG CLN_VERSION="v0.8.2"
 
 RUN apk add --update --no-cache \
     asciidoc \
@@ -51,7 +51,7 @@ ENV LIGHTNINGD_RPC_PORT=9835
 VOLUME ["/.bitcoin", "/.lightning"]
 
 COPY --from=builder /tmp/lightning_install/ /usr/local/
-COPY --from=cyphernode/bitcoin:v0.19.0.1 /usr/bin/bitcoin-cli /usr/bin
+COPY --from=cyphernode/bitcoin:v0.19.1 /usr/bin/bitcoin-cli /usr/bin
 COPY bitcoin.conf /.bitcoin/bitcoin.conf
 
 EXPOSE 9735
