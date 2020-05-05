@@ -2,32 +2,29 @@ FROM alpine:3.11.0 as builder
 
 ARG CLN_VERSION="v0.8.2"
 
+ENV LIGHTNINGD_VERSION=master
+
 RUN apk add --update --no-cache \
-    asciidoc \
     ca-certificates \
+    alpine-sdk \
     autoconf \
     automake \
-    build-base \
-    libressl \
+    git \
     libtool \
     gmp-dev \
-    gettext \
-    python \
-    python-dev \
-    python3 \
-    py3-mako \
     sqlite-dev \
-    wget \
-    git \
-    file \
-    gnupg \
-    swig \
-    zlib-dev
+    python3-dev \
+    py3-mako \
+    net-tools \
+    zlib-dev \
+    libsodium \
+    gettext
 
-ARG DEVELOPER=1
-RUN git clone -b ${CLN_VERSION} --single-branch --recursive https://github.com/ElementsProject/lightning.git \
+ARG DEVELOPER=0
+
+RUN git clone https://github.com/ElementsProject/lightning.git \
  && cd lightning \
- && pip3 install -r doc/requirements.txt \
+ && git submodule update --init \
  && ./configure --prefix=/tmp/lightning_install \
  && make -j3 DEVELOPER=${DEVELOPER} \
  && make install
@@ -39,6 +36,7 @@ FROM cyphernode/alpine-glibc-base:v3.11.0_2.29-0
 RUN apk add --update --no-cache \
     gmp-dev \
     sqlite-dev \
+    postgresql-dev \
     inotify-tools \
     socat \
     bash \
