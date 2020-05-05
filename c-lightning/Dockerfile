@@ -18,13 +18,15 @@ RUN apk add --update --no-cache \
     net-tools \
     zlib-dev \
     libsodium \
-    gettext
+    gettext \
+    postgresql-dev
 
 ARG DEVELOPER=0
 
 RUN git clone https://github.com/ElementsProject/lightning.git \
  && cd lightning \
  && git submodule update --init \
+ && pip3 install -r requirements.txt \
  && ./configure --prefix=/tmp/lightning_install \
  && make -j3 DEVELOPER=${DEVELOPER} \
  && make install
