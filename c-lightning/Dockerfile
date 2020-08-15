@@ -52,7 +52,7 @@ ENV LIGHTNINGD_RPC_PORT=9835
 VOLUME ["/.bitcoin", "/.lightning"]
 
 COPY --from=builder /tmp/lightning_install/ /usr/local/
-COPY --from=cyphernode/bitcoin:v0.19.1 /usr/bin/bitcoin-cli /usr/bin
+COPY --from=cyphernode/bitcoin:v0.20.1 /usr/bin/bitcoin-cli /usr/bin
 COPY bitcoin.conf /.bitcoin/bitcoin.conf
 
 EXPOSE 9735
