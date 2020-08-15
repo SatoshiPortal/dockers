@@ -1,6 +1,6 @@
 FROM alpine:3.11.0 as builder
 
-ARG CLN_VERSION="v0.8.2"
+ARG CLN_VERSION="v0.9.0-1"
 
 ENV LIGHTNINGD_VERSION=master
 
@@ -19,7 +19,8 @@ RUN apk add --update --no-cache \
     zlib-dev \
     libsodium \
     gettext \
-    postgresql-dev
+    postgresql-dev \
+    libffi-dev
 
 ARG DEVELOPER=0
 
