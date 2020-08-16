@@ -20,7 +20,8 @@ RUN apk add --update --no-cache \
     libsodium \
     gettext \
     postgresql-dev \
-    libffi-dev
+    libffi-dev \
+    py3-cryptography
 
 ARG DEVELOPER=0
 
