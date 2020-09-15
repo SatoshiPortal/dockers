@@ -23,13 +23,13 @@ RUN apk add --update --no-cache \
     libffi-dev \
     py3-cryptography
 
-ARG DEVELOPER=0
+ARG DEVELOPER=1
 
 RUN git clone https://github.com/ElementsProject/lightning.git \
- && cd lightning \
+ && cd lightning && git checkout ${CLN_VERSION} \
  && git submodule update --init \
  && pip3 install -r requirements.txt \
- && ./configure --prefix=/tmp/lightning_install \
+ && ./configure --prefix=/tmp/lightning_install --enable-developer \
  && make -j3 DEVELOPER=${DEVELOPER} \
  && make install
 
