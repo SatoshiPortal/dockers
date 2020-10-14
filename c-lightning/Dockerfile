@@ -1,6 +1,6 @@
 FROM alpine:3.11.0 as builder
 
-ARG CLN_VERSION="v0.8.2"
+ARG CLN_VERSION="v0.9.1"
 
 ENV LIGHTNINGD_VERSION=master
 
@@ -19,15 +19,17 @@ RUN apk add --update --no-cache \
     zlib-dev \
     libsodium \
     gettext \
-    postgresql-dev
+    postgresql-dev \
+    libffi-dev \
+    py3-cryptography
 
-ARG DEVELOPER=0
+ARG DEVELOPER=1
 
 RUN git clone https://github.com/ElementsProject/lightning.git \
- && cd lightning \
+ && cd lightning && git checkout ${CLN_VERSION} \
  && git submodule update --init \
  && pip3 install -r requirements.txt \
- && ./configure --prefix=/tmp/lightning_install \
+ && ./configure --prefix=/tmp/lightning_install --enable-developer \
  && make -j3 DEVELOPER=${DEVELOPER} \
  && make install
 
@@ -51,7 +53,7 @@ ENV LIGHTNINGD_RPC_PORT=9835
 VOLUME ["/.bitcoin", "/.lightning"]
 
 COPY --from=builder /tmp/lightning_install/ /usr/local/
-COPY --from=cyphernode/bitcoin:v0.19.1 /usr/bin/bitcoin-cli /usr/bin
+COPY --from=cyphernode/bitcoin:v0.20.1 /usr/bin/bitcoin-cli /usr/bin
 COPY bitcoin.conf /.bitcoin/bitcoin.conf
 
 EXPOSE 9735
