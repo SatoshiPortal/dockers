@@ -5,7 +5,7 @@ This Docker container is based on Alpine.  It will run the whole container as th
 ## Build
 
 ```bash
-docker build -t cyphernode/specter:v0.8.1 .
+docker build -t cyphernode/specter:v0.9.2 .
 ```
 
 ## Run
