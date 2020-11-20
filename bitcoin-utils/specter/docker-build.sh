@@ -11,7 +11,7 @@ image() {
 
   echo "Building and pushing cyphernode/specter for $arch tagging as ${version}..."
 
-  docker build -t cyphernode/specter:${arch}-${version} . \
+  docker build --no-cache -t cyphernode/specter:${arch}-${version} . \
   && docker push cyphernode/specter:${arch}-${version}
 
   return $?
