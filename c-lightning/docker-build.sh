@@ -11,7 +11,7 @@ image() {
 
   echo "Building and pushing cyphernode/clightning for $arch tagging as ${version}..."
 
-  docker build -t cyphernode/clightning:${arch}-${version} . \
+  docker build --no-cache -t cyphernode/clightning:${arch}-${version} . \
   && docker push cyphernode/clightning:${arch}-${version}
 
   return $?
