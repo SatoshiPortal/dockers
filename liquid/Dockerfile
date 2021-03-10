@@ -1,9 +1,9 @@
-FROM cyphernode/alpine-glibc-base:v3.11.0_2.29-0
+FROM cyphernode/alpine-glibc-base:v3.12.4_2.33-0
 
-ARG ELEMENTS_VERSION="0.18.1.7"
+ARG ELEMENTS_VERSION="0.18.1.9"
 
 # x86_64, arm or aarch64
-ARG ARCH
+ARG ARCH=x86_64
 
 # https://github.com/ElementsProject/elements/releases/download/elements-0.18.1.3/elements-0.18.1.3-arm-linux-gnueabihf.tar.gz
 # https://github.com/ElementsProject/elements/releases/download/elements-0.18.1.3/elements-0.18.1.3-aarch64-linux-gnu.tar.gz
@@ -22,7 +22,7 @@ VOLUME ["/.elements"]
 WORKDIR /usr/bin
 
 RUN wget ${URL}/SHA256SUMS.asc \
- && gpg --recv-keys 11D43A27826A421212108BF66BE2CED14A9917BC DE10E82629A8CAD55B700B972F2A88D7F8D68E87 \
+ && gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 11D43A27826A421212108BF66BE2CED14A9917BC DE10E82629A8CAD55B700B972F2A88D7F8D68E87 \
  && gpg --verify SHA256SUMS.asc \
  && GNU=$([ "${ARCH}" = "arm" ] && echo eabihf || true) \
  && TARBALL=elements-${ELEMENTS_VERSION}-${ARCH}-linux-gnu${GNU}.tar.gz \
