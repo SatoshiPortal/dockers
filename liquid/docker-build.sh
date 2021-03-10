@@ -12,7 +12,7 @@ image() {
 
   echo "Building and pushing cyphernode/elements for $arch tagging as ${version} alpine arch ${arch2}..."
 
-  docker build --no-cache -t cyphernode/elements:${arch}-${version} --build-arg ARCH=${arch2} . \
+  docker build -t cyphernode/elements:${arch}-${version} --build-arg ARCH=${arch2} . \
   && docker push cyphernode/elements:${arch}-${version}
 
   return $?
@@ -46,7 +46,7 @@ aarch64_alpine="aarch64"
 #arch_docker=${aarch64_docker} ; arch_alpine=${aarch64_alpine}
 arch_docker=${x86_docker} ; arch_alpine=${x86_alpine}
 
-version="v0.18.1.7"
+version="v0.18.1.9"
 
 echo "arch_docker=$arch_docker, arch_alpine=$arch_alpine"
 

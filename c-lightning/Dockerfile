@@ -1,6 +1,6 @@
-FROM alpine:3.11.0 as builder
+FROM alpine:3.12.4 as builder
 
-ARG CLN_VERSION="v0.9.1"
+ARG CLN_VERSION="v0.9.3"
 
 ENV LIGHTNINGD_VERSION=master
 
@@ -21,13 +21,16 @@ RUN apk add --update --no-cache \
     gettext \
     postgresql-dev \
     libffi-dev \
-    py3-cryptography
+    py3-cryptography \
+    py3-pip \
+    cargo
 
 ARG DEVELOPER=1
+ENV PYTHON_VERSION=3
 
 RUN git clone https://github.com/ElementsProject/lightning.git \
  && cd lightning && git checkout ${CLN_VERSION} \
- && git submodule update --init \
+ && git submodule update --init --recursive \
  && pip3 install -r requirements.txt \
  && ./configure --prefix=/tmp/lightning_install --enable-developer \
  && make -j3 DEVELOPER=${DEVELOPER} \
@@ -35,7 +38,7 @@ RUN git clone https://github.com/ElementsProject/lightning.git \
 
 # Let's create the actual image that will be run
 
-FROM cyphernode/alpine-glibc-base:v3.11.0_2.29-0
+FROM cyphernode/alpine-glibc-base:v3.12.4_2.33-0
 
 RUN apk add --update --no-cache \
     gmp-dev \
@@ -53,7 +56,7 @@ ENV LIGHTNINGD_RPC_PORT=9835
 VOLUME ["/.bitcoin", "/.lightning"]
 
 COPY --from=builder /tmp/lightning_install/ /usr/local/
-COPY --from=cyphernode/bitcoin:v0.20.1 /usr/bin/bitcoin-cli /usr/bin
+COPY --from=cyphernode/bitcoin:v0.21.0 /usr/bin/bitcoin-cli /usr/bin
 COPY bitcoin.conf /.bitcoin/bitcoin.conf
 
 EXPOSE 9735
