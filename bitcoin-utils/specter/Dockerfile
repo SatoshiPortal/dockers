@@ -1,8 +1,8 @@
 FROM python:3.8.6-alpine3.12 AS builder
 
 ENV HOME /
-ENV VERSION=v0.9.2
-ENV BRANCH=v0.9.2
+ENV VERSION=v1.2.2
+ENV BRANCH=v1.2.2
 
 RUN apk add --update --no-cache git g++ libffi-dev openssl-dev libusb-dev eudev-dev \
  && git clone --single-branch --branch ${BRANCH} https://github.com/cryptoadvance/specter-desktop.git \
