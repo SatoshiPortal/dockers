@@ -38,7 +38,7 @@ RUN git clone https://github.com/ElementsProject/lightning.git \
 
 # Let's create the actual image that will be run
 
-FROM cyphernode/alpine-glibc-base:v3.12.4_2.33-0
+FROM cyphernode/alpine-glibc-base:v3.12.4_2.31-0
 
 RUN apk add --update --no-cache \
     gmp-dev \
