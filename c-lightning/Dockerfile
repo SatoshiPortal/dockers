@@ -1,6 +1,6 @@
 FROM alpine:3.12.4 as builder
 
-ARG CLN_VERSION="v0.9.3"
+ARG CLN_VERSION="v0.10.0"
 
 ENV LIGHTNINGD_VERSION=master
 
@@ -56,7 +56,7 @@ ENV LIGHTNINGD_RPC_PORT=9835
 VOLUME ["/.bitcoin", "/.lightning"]
 
 COPY --from=builder /tmp/lightning_install/ /usr/local/
-COPY --from=cyphernode/bitcoin:v0.21.0 /usr/bin/bitcoin-cli /usr/bin
+COPY --from=cyphernode/bitcoin:v0.21.1 /usr/bin/bitcoin-cli /usr/bin
 COPY bitcoin.conf /.bitcoin/bitcoin.conf
 
 EXPOSE 9735
