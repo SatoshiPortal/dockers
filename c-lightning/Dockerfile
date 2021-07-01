@@ -48,7 +48,13 @@ RUN apk add --update --no-cache \
     socat \
     bash \
     zlib-dev \
+    py3-pip \
+    python3-dev \
+    g++ \
+    linux-headers \
     su-exec
+
+RUN pip install pyln-client pyln-testing
 
 ENV LIGHTNINGD_DATA=/.lightning
 ENV LIGHTNINGD_RPC_PORT=9835
