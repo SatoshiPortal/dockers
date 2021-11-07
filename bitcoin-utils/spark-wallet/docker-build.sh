@@ -11,7 +11,7 @@ image() {
 
   echo "Building and pushing cyphernode/sparkwallet for $arch tagging as ${version}..."
 
-  docker build -t cyphernode/sparkwallet:${arch}-${version} -f Dockerfile-cyphernode . \
+  docker build --no-cache -t cyphernode/sparkwallet:${arch}-${version} -f Dockerfile . \
   && docker push cyphernode/sparkwallet:${arch}-${version}
 
   return $?
