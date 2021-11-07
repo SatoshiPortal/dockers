@@ -42,7 +42,7 @@ aarch64_docker="arm64"
 #arch_docker=${aarch64_docker}
 arch_docker=${x86_docker}
 
-version="v1.3.1"
+version="v1.7.1"
 
 echo "arch_docker=$arch_docker"
 
