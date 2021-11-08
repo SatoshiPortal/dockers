@@ -18,7 +18,7 @@ image() {
 }
 
 manifest() {
-  echo "Creating and pushing manifest for cyphernode/clightning for version ${version}..."
+  echo "Creating and pushing manifest for cyphernode/specter for version ${version}..."
 
   docker manifest create cyphernode/specter:${version} \
                          cyphernode/specter:${x86_docker}-${version} \

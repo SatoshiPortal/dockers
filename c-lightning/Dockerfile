@@ -76,7 +76,7 @@ VOLUME ["/.bitcoin", "/.lightning"]
 
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=clboss /usr/local/bin/clboss /usr/local/bin
-COPY --from=cyphernode/bitcoin:v0.21.1 /usr/bin/bitcoin-cli /usr/bin
+COPY --from=cyphernode/bitcoin:v22.0 /usr/bin/bitcoin-cli /usr/bin
 COPY bitcoin.conf /.bitcoin/bitcoin.conf
 
 EXPOSE 9735
