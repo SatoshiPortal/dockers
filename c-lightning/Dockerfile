@@ -1,8 +1,6 @@
 FROM alpine:3.12.4 as builder
 
-ARG CLN_VERSION="v0.10.0"
-
-ENV LIGHTNINGD_VERSION=master
+ARG CLN_VERSION="v0.10.2"
 
 RUN apk add --update --no-cache \
     ca-certificates \
@@ -28,13 +26,24 @@ RUN apk add --update --no-cache \
 ARG DEVELOPER=1
 ENV PYTHON_VERSION=3
 
-RUN git clone https://github.com/ElementsProject/lightning.git \
- && cd lightning && git checkout ${CLN_VERSION} \
- && git submodule update --init --recursive \
- && pip3 install -r requirements.txt \
+RUN git clone --single-branch --branch ${CLN_VERSION} --recursive https://github.com/ElementsProject/lightning.git \
+ && cd lightning \
+ && pip3 install --upgrade pip \
+ && pip3 install -r requirements.txt --use-feature=in-tree-build \
  && ./configure --prefix=/tmp/lightning_install --enable-developer \
  && make -j3 DEVELOPER=${DEVELOPER} \
  && make install
+
+FROM alpine:3.12.4 as clboss
+
+ENV CLBOSS_VERSION="0.11B"
+
+# Let's check out version 0.11B: commit 1e3c9085c383dc0bf25070b2c6a867937d801970
+RUN apk add --update --no-cache git autoconf alpine-sdk automake libtool pkgconfig sqlite-dev libev-dev gnutls-dev bind-tools autoconf-archive sqlite pkgconf libev curl curl-dev \
+ && git clone --single-branch --branch ${CLBOSS_VERSION} https://github.com/ZmnSCPxj/clboss.git \
+ && cd clboss \
+ && autoreconf -i \
+ && ./configure && make && make install
 
 # Let's create the actual image that will be run
 
@@ -52,7 +61,11 @@ RUN apk add --update --no-cache \
     python3-dev \
     g++ \
     linux-headers \
-    su-exec
+    su-exec \
+    libev \
+    curl \
+    bind-tools \
+    postgresql
 
 RUN pip install pyln-client pyln-testing
 
@@ -62,7 +75,8 @@ ENV LIGHTNINGD_RPC_PORT=9835
 VOLUME ["/.bitcoin", "/.lightning"]
 
 COPY --from=builder /tmp/lightning_install/ /usr/local/
-COPY --from=cyphernode/bitcoin:v0.21.1 /usr/bin/bitcoin-cli /usr/bin
+COPY --from=clboss /usr/local/bin/clboss /usr/local/bin
+COPY --from=cyphernode/bitcoin:v22.0 /usr/bin/bitcoin-cli /usr/bin
 COPY bitcoin.conf /.bitcoin/bitcoin.conf
 
 EXPOSE 9735
