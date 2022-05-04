@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Must be logged to docker hub:
 # docker login -u cyphernode
@@ -40,13 +40,35 @@ arm_alpine="arm"
 aarch64_docker="arm64"
 aarch64_alpine="aarch64"
 
+version="v0.21.0.2"
+
 # Build amd64 and arm64 first, building for arm will trigger the manifest creation and push on hub
 
-#arch_docker=${arm_docker} ; arch_alpine=${arm_alpine}
-#arch_docker=${aarch64_docker} ; arch_alpine=${aarch64_alpine}
-arch_docker=${x86_docker} ; arch_alpine=${x86_alpine}
+echo -e "\nBuild Elements ${version} for:\n"
+echo "1) AMD 64 bits (Most PCs)"
+echo "2) ARM 64 bits (RPi4, Mac M1)"
+echo "3) ARM 32 bits (RPi2-3)"
+echo -en "\nYour choice (1, 2, 3): "
+read arch_input
 
-version="v0.18.1.12"
+case "${arch_input}" in
+  1)
+    arch_docker=${x86_docker}
+    arch_alpine=${x86_alpine}
+    ;;
+  2)
+    arch_docker=${aarch64_docker}
+    arch_alpine=${aarch64_alpine}
+    ;;
+  3)
+    arch_docker=${arm_docker}
+    arch_alpine=${arm_alpine}
+    ;;
+  *)
+    echo "Not a valid choice."
+    exit 1
+    ;;
+esac
 
 echo "arch_docker=$arch_docker, arch_alpine=$arch_alpine"
 
