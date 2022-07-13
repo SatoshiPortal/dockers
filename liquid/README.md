@@ -1,3 +1,3 @@
 # Build
 
-docker build -t cyphernode/elements:v0.18.1.12 --build-arg ARCH=x86_64 .
+docker build -t cyphernode/elements:v0.21.0.2 --build-arg ARCH=x86_64 .

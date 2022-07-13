@@ -12,7 +12,7 @@ image() {
 
   echo "Building and pushing cyphernode/elements for $arch tagging as ${version} alpine arch ${arch2}..."
 
-  docker build -t cyphernode/elements:${arch}-${version} --build-arg ARCH=${arch2} . \
+  docker build --no-cache -t cyphernode/elements:${arch}-${version} --build-arg ARCH=${arch2} . \
   && docker push cyphernode/elements:${arch}-${version}
 
   return $?
@@ -40,7 +40,7 @@ arm_alpine="arm"
 aarch64_docker="arm64"
 aarch64_alpine="aarch64"
 
-version="v0.21.0.2"
+version="v0.21.0.2-mosquitto-debian"
 
 # Build amd64 and arm64 first, building for arm will trigger the manifest creation and push on hub
 

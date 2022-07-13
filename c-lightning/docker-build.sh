@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Must be logged to docker hub:
 # docker login -u cyphernode
@@ -8,10 +8,11 @@
 
 image() {
   local arch=$1
+  local arch2=$2
 
-  echo "Building and pushing cyphernode/clightning for $arch tagging as ${version}..."
+  echo "Building and pushing cyphernode/clightning for $arch tagging as ${version} alpine arch ${arch2}..."
 
-  docker build --no-cache -t cyphernode/clightning:${arch}-${version} . \
+  docker build --no-cache -t cyphernode/clightning:${arch}-${version} --build-arg ARCH=${arch2} . \
   && docker push cyphernode/clightning:${arch}-${version}
 
   return $?
@@ -33,20 +34,47 @@ manifest() {
 }
 
 x86_docker="amd64"
+x86_alpine="x86_64"
 arm_docker="arm"
+arm_alpine="arm"
 aarch64_docker="arm64"
+aarch64_alpine="aarch64"
+
+version="v0.11.2-debian"
 
 # Build amd64 and arm64 first, building for arm will trigger the manifest creation and push on hub
 
-#arch_docker=${arm_docker}
-#arch_docker=${aarch64_docker}
-arch_docker=${x86_docker}
+echo -e "\nBuild Core Lightning ${version} for:\n"
+echo "1) AMD 64 bits (Most PCs)"
+echo "2) ARM 64 bits (Mac M1, RPi4)"
+echo "3) ARM 32 bits (RPi2-3)"
+echo -en "\nYour choice (1, 2, 3): "
+read arch_input
 
-version="v0.10.2"
+case "${arch_input}" in
+  1)
+    arch_docker=${x86_docker}
+    arch_alpine=${x86_alpine}
+    ;;
+  2)
+    arch_docker=${aarch64_docker}
+    arch_alpine=${aarch64_alpine}
+    ;;
+  3)
+    arch_docker=${arm_docker}
+    arch_alpine=${arm_alpine}
+    ;;
+  *)
+    echo "Not a valid choice."
+    exit 1
+    ;;
+esac
 
+echo -e "\nBuilding Core Lightning container\n"
 echo "arch_docker=$arch_docker"
+echo -e "arch_alpine=$arch_alpine\n"
 
-image ${arch_docker}
+image ${arch_docker} ${arch_alpine}
 
 [ $? -ne 0 ] && echo "Error" && exit 1
 
