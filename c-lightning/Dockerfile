@@ -60,9 +60,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 && mkdir $LIGHTNINGD_DATA \
 && touch $LIGHTNINGD_DATA/config
 
-VOLUME [ "/.lightning" ]
+VOLUME ["/.bitcoin", "/.lightning"]
 
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=builder /lightning/tools/docker-entrypoint.sh entrypoint.sh
+COPY --from=cyphernode/bitcoin:v22.0-mosquitto-debian /usr/bin/bitcoin-cli /usr/bin
+COPY bitcoin.conf /.bitcoin/bitcoin.conf
 
 EXPOSE 9735 9835
