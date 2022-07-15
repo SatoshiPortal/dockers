@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Must be logged to docker hub:
 # docker login -u cyphernode
@@ -40,15 +40,39 @@ arm_alpine="arm"
 aarch64_docker="arm64"
 aarch64_alpine="aarch64"
 
+version="v22.0-mosquitto-debian"
+
 # Build amd64 and arm64 first, building for arm will trigger the manifest creation and push on hub
 
-#arch_docker=${arm_docker} ; arch_alpine=${arm_alpine}
-arch_docker=${aarch64_docker} ; arch_alpine=${aarch64_alpine}
-#arch_docker=${x86_docker} ; arch_alpine=${x86_alpine}
+echo -e "\nBuild Bitcoin Knots ${version} for:\n"
+echo "1) AMD 64 bits (Most PCs)"
+echo "2) ARM 64 bits (Mac M1, RPi4)"
+echo "3) ARM 32 bits (RPi2-3)"
+echo -en "\nYour choice (1, 2, 3): "
+read arch_input
 
-version="v22.0"
+case "${arch_input}" in
+  1)
+    arch_docker=${x86_docker}
+    arch_alpine=${x86_alpine}
+    ;;
+  2)
+    arch_docker=${aarch64_docker}
+    arch_alpine=${aarch64_alpine}
+    ;;
+  3)
+    arch_docker=${arm_docker}
+    arch_alpine=${arm_alpine}
+    ;;
+  *)
+    echo "Not a valid choice."
+    exit 1
+    ;;
+esac
 
-echo "arch_docker=$arch_docker, arch_alpine=$arch_alpine"
+echo -e "\nBuilding Bitcoin Knots container\n"
+echo "arch_docker=$arch_docker"
+echo -e "arch_alpine=$arch_alpine\n"
 
 image ${arch_docker} ${arch_alpine}
 

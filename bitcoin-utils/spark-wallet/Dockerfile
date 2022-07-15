@@ -1,6 +1,7 @@
 FROM node:16.8-bullseye-slim as builder
 
-ENV SPARKWALLET_VERSION=v0.3.0
+# Default building version v0.3.1
+ENV SPARKWALLET_VERSION=v0.3.1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
