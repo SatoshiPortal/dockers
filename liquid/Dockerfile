@@ -1,6 +1,6 @@
 FROM debian:bullseye-slim
 
-ARG ELEMENTS_VERSION="0.21.0.2"
+ARG ELEMENTS_VERSION="22.0.2"
 
 # x86_64, arm or aarch64
 ARG ARCH=aarch64
@@ -17,14 +17,14 @@ WORKDIR /usr/bin
 
 RUN apt update && apt -y install wget gpg mosquitto-clients curl coreutils jq \
  && wget ${URL}/SHA256SUMS.asc \
- && gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 11D43A27826A421212108BF66BE2CED14A9917BC DE10E82629A8CAD55B700B972F2A88D7F8D68E87 \
+ && gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys BD0F3062F87842410B06A0432F656B0610604482 \
  && gpg --verify SHA256SUMS.asc \
  && GNU=$([ "${ARCH}" = "arm" ] && echo eabihf || true) \
- && TARBALL=elements-elements-${ELEMENTS_VERSION}-${ARCH}-linux-gnu${GNU}.tar.gz \
+ && TARBALL=elements-${ELEMENTS_VERSION}-${ARCH}-linux-gnu${GNU}.tar.gz \
  && echo ${URL}/$TARBALL \
  && wget ${URL}/$TARBALL \
  && grep $TARBALL SHA256SUMS.asc | sha256sum -c - \
- && tar -xzC . -f $TARBALL elements-elements-${ELEMENTS_VERSION}/bin/elementsd elements-elements-${ELEMENTS_VERSION}/bin/elements-cli --strip-components=2 \
+ && tar -xzC . -f $TARBALL elements-${ELEMENTS_VERSION}/bin/elementsd elements-${ELEMENTS_VERSION}/bin/elements-cli --strip-components=2 \
  && rm -rf $TARBALL SHA256SUMS.asc \
  && apt -y remove gpg wget && apt -y autoremove
 

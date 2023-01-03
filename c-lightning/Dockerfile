@@ -1,6 +1,10 @@
+# ----------------------------------------------------------------------
+# Build layer
+# ----------------------------------------------------------------------
+
 FROM debian:bullseye-slim as builder
 
-ENV LIGHTNINGD_VERSION=v0.11.2
+ENV LIGHTNINGD_VERSION=v22.11.1
 
 RUN apt update && apt install -y \
     autoconf \
@@ -35,13 +39,38 @@ WORKDIR /lightning
 RUN pip3 install -U pip \
  && pip3 install -U wheel \
  && curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python3 - \
-# && pip3 install -U coincurve \
-# && pip3 install -U mrkd \
- && /root/.local/bin/poetry config virtualenvs.create false \
- && /root/.local/bin/poetry install
+ && /root/.local/bin/poetry export --without-hashes -o requirements.txt \
+ && pip3 install -r requirements.txt
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j3 DEVELOPER=${DEVELOPER} && make install
 
+# ----------------------------------------------------------------------
+# CLBOSS
+# ----------------------------------------------------------------------
+
+FROM debian:bullseye-slim as clboss
+
+# Let's get master as of Jul 14, commit 9962497affbc7917de3757a20f3bc3345a3eb26b
+RUN apt update && apt install -y \
+    build-essential \
+    pkg-config \
+    libev-dev \
+    libcurl4-gnutls-dev \
+    libsqlite3-dev \
+    dnsutils \
+    git \
+    automake \
+    autoconf-archive \
+    libtool \
+ && git clone https://github.com/ZmnSCPxj/clboss.git \
+ && cd clboss \
+ && git checkout 9962497affbc7917de3757a20f3bc3345a3eb26b \
+ && autoreconf -i \
+ && ./configure && make && make install
+
+# ----------------------------------------------------------------------
+# FINAL layer
+# ----------------------------------------------------------------------
 
 FROM debian:bullseye-slim as final
 
@@ -56,14 +85,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
     libpq5 \
+    cargo \
+    autoconf automake build-essential libffi-dev libtool pkg-config python3-dev \
+    openssl libssl-dev \
 && rm -rf /var/lib/apt/lists/* \
 && mkdir $LIGHTNINGD_DATA \
-&& touch $LIGHTNINGD_DATA/config
+&& touch $LIGHTNINGD_DATA/config \
+&& pip3 install pyln-client
 
 VOLUME ["/.bitcoin", "/.lightning"]
 
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=builder /lightning/tools/docker-entrypoint.sh entrypoint.sh
+COPY --from=clboss /usr/local/bin/clboss /usr/local/bin
 COPY --from=cyphernode/bitcoin:v22.0-mosquitto-debian /usr/bin/bitcoin-cli /usr/bin
 COPY bitcoin.conf /.bitcoin/bitcoin.conf
 

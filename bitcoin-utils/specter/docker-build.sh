@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Must be logged to docker hub:
 # docker login -u cyphernode
@@ -11,7 +11,7 @@ image() {
 
   echo "Building and pushing cyphernode/specter for $arch tagging as ${version}..."
 
-  docker build --no-cache -t cyphernode/specter:${arch}-${version} . \
+  docker build -t cyphernode/specter:${arch}-${version} . \
   && docker push cyphernode/specter:${arch}-${version}
 
   return $?
@@ -36,14 +36,34 @@ x86_docker="amd64"
 arm_docker="arm"
 aarch64_docker="arm64"
 
+version="v1.14.2"
+
 # Build amd64 and arm64 first, building for arm will trigger the manifest creation and push on hub
 
-#arch_docker=${arm_docker}
-#arch_docker=${aarch64_docker}
-arch_docker=${x86_docker}
+echo -e "\nBuild Core Lightning ${version} for:\n"
+echo "1) AMD 64 bits (Most PCs)"
+echo "2) ARM 64 bits (Mac M1, RPi4)"
+echo "3) ARM 32 bits (RPi2-3)"
+echo -en "\nYour choice (1, 2, 3): "
+read arch_input
 
-version="v1.7.1"
+case "${arch_input}" in
+  1)
+    arch_docker=${x86_docker}
+    ;;
+  2)
+    arch_docker=${aarch64_docker}
+    ;;
+  3)
+    arch_docker=${arm_docker}
+    ;;
+  *)
+    echo "Not a valid choice."
+    exit 1
+    ;;
+esac
 
+echo -e "\nBuilding Core Lightning container\n"
 echo "arch_docker=$arch_docker"
 
 image ${arch_docker}

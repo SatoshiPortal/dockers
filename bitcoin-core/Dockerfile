@@ -1,6 +1,6 @@
 FROM debian:bullseye-slim
 
-ARG CORE_VERSION="23.0"
+ARG CORE_VERSION="24.0.1"
 
 # x86_64, arm or aarch64
 ARG ARCH

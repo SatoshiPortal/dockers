@@ -40,7 +40,7 @@ arm_alpine="arm"
 aarch64_docker="arm64"
 aarch64_alpine="aarch64"
 
-version="v23.0-mosquitto-debian"
+version="v24.0.1-mosquitto-debian"
 
 # Build amd64 and arm64 first, building for arm will trigger the manifest creation and push on hub
 
