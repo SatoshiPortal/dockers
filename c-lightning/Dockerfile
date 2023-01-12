@@ -44,6 +44,10 @@ RUN pip3 install -U pip \
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j3 DEVELOPER=${DEVELOPER} && make install
 
+RUN mkdir tmp-pyln \
+ && cp -r /usr/local/lib/python3.9/dist-packages/pyln* tmp-pyln/
+
+
 # ----------------------------------------------------------------------
 # CLBOSS
 # ----------------------------------------------------------------------
@@ -68,6 +72,7 @@ RUN apt update && apt install -y \
  && autoreconf -i \
  && ./configure && make && make install
 
+
 # ----------------------------------------------------------------------
 # FINAL layer
 # ----------------------------------------------------------------------
@@ -87,14 +92,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     cargo \
     autoconf automake build-essential libffi-dev libtool pkg-config python3-dev \
-    openssl libssl-dev \
+    openssl libssl-dev libev-dev dnsutils \
 && rm -rf /var/lib/apt/lists/* \
 && mkdir $LIGHTNINGD_DATA \
-&& touch $LIGHTNINGD_DATA/config \
-&& pip3 install pyln-client
+&& touch $LIGHTNINGD_DATA/config
 
 VOLUME ["/.bitcoin", "/.lightning"]
 
+COPY --from=builder /lightning/tmp-pyln/ /usr/local/lib/python3.9/dist-packages/
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=builder /lightning/tools/docker-entrypoint.sh entrypoint.sh
 COPY --from=clboss /usr/local/bin/clboss /usr/local/bin
