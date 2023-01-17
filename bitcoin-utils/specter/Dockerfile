@@ -1,8 +1,8 @@
 FROM python:3.9-alpine3.15 AS builder
 
 ENV HOME /
-ENV VERSION=v1.14.2
-ENV BRANCH=v1.14.2
+ENV VERSION=v1.14.3
+ENV BRANCH=v1.14.3
 ENV CARGO_NET_GIT_FETCH_WITH_CLI true
 
 RUN apk add --update --no-cache git g++ libffi-dev openssl-dev libusb-dev eudev-dev rust cargo zlib-dev postgresql-dev \
