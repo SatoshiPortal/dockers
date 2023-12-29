@@ -1,40 +1,51 @@
 FROM node:16.8-bullseye-slim as builder
 
-# Default building version v0.3.1
-ENV SPARKWALLET_VERSION=v0.3.1
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    ca-certificates
+# Install build dependencies for third-party packages (c-lightning/bitcoind)
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates dirmngr wget
 
 # npm doesn't normally like running as root, allow it since we're in docker
 RUN npm config set unsafe-perm true
 
-RUN git clone --single-branch --branch ${SPARKWALLET_VERSION} https://github.com/shesek/spark-wallet.git /opt/spark \
- && cd /opt/spark/client \
- && npm install \
- && cd .. \
- && npm install \
- && npm run dist:npm \
+# Install Spark
+WORKDIR /opt
+RUN git clone https://github.com/shesek/spark-wallet.git spark \
+ && cd spark \
+ && git checkout 112fd9b
+
+COPY patch.diff /opt/spark/
+RUN cd spark \
+ && git apply patch.diff
+
+WORKDIR /opt/spark/client
+RUN npm install
+
+WORKDIR /opt/spark
+RUN npm install
+
+# Build production NPM package
+RUN npm run dist:npm \
  && npm prune --production \
  && find . -mindepth 1 -maxdepth 1 \
-    ! -name '*.json' ! -name dist ! -name LICENSE ! -name node_modules ! -name scripts \
-    -exec rm -r "{}" \;
+           ! -name '*.json' ! -name dist ! -name LICENSE ! -name node_modules ! -name scripts \
+           -exec rm -r "{}" \;
 
-FROM node:16.8-alpine3.11
+# Prepare final image
+
+FROM node:16.8-bullseye-slim
 
 WORKDIR /opt/spark
 
-RUN apk add --update --no-cache bash xz inotify-tools tini netcat-openbsd \
- && ln -s /opt/spark/dist/cli.js /usr/bin/spark-wallet \
- && mkdir /data \
- && ln -s /data/lightning $HOME/.lightning
+RUN apt-get update && apt-get install -y --no-install-recommends xz-utils inotify-tools netcat-openbsd tini
 
 COPY --from=builder /opt/spark /opt/spark
 
 ENV CONFIG=/data/spark/config TLS_PATH=/data/spark/tls TOR_PATH=/data/spark/tor COOKIE_FILE=/data/spark/cookie HOST=0.0.0.0
 
+# link the granax (Tor Control client) node_modules installation directory
+# inside /data/spark/tor/, to persist the Tor Bundle download in the user-mounted volume
+RUN ln -s $TOR_PATH/tor-installation/node_modules dist/transport/granax-dep/node_modules
+
 VOLUME /data
 ENTRYPOINT [ "tini", "-g", "--", "scripts/docker-entrypoint.sh" ]
 
-EXPOSE 9737
+EXPOSE 9735 9737
