@@ -35,7 +35,11 @@ FROM node:16.8-bullseye-slim
 
 WORKDIR /opt/spark
 
-RUN apt-get update && apt-get install -y --no-install-recommends xz-utils inotify-tools netcat-openbsd tini
+RUN apt-get update && apt-get install -y --no-install-recommends xz-utils inotify-tools netcat-openbsd tini \
+ && rm -rf /var/lib/apt/lists/* \
+ && ln -s /opt/spark/dist/cli.js /usr/bin/spark-wallet \
+ && mkdir /data \
+ && ln -s /data/lightning $HOME/.lightning
 
 COPY --from=builder /opt/spark /opt/spark
 
