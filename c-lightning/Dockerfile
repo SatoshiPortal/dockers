@@ -5,6 +5,7 @@
 FROM debian:bullseye-slim as builder
 
 ENV LIGHTNINGD_VERSION=v23.11.2
+ENV DEVELOPER=1
 
 RUN apt update && apt install -y \
     autoconf \
@@ -17,6 +18,7 @@ RUN apt update && apt install -y \
     git \
     gnupg \
     libpq-dev \
+    postgresql \
     libtool \
     libffi-dev \
     protobuf-compiler \
@@ -53,8 +55,8 @@ RUN ./configure --prefix=/tmp/lightning_install --enable-static \
  && make -j3 DEVELOPER=${DEVELOPER} \
  && make install
 
-RUN mkdir tmp-pyln \
- && cp -r /usr/local/lib/python3.9/dist-packages/pyln* tmp-pyln/
+RUN . "/root/.cargo/env" \
+ && pip3 install -r plugins/clnrest/requirements.txt
 
 
 # ----------------------------------------------------------------------
@@ -100,20 +102,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     qemu-user-static \
     libpq5 \
-    cargo \
+    curl \
+    libcurl4-gnutls-dev \
+    postgresql \
     autoconf automake build-essential libffi-dev libtool pkg-config python3-dev \
     openssl libssl-dev libev-dev dnsutils \
-&& rm -rf /var/lib/apt/lists/* \
-&& mkdir $LIGHTNINGD_DATA \
-&& touch $LIGHTNINGD_DATA/config
+ && rm -rf /var/lib/apt/lists/* \
+ && mkdir $LIGHTNINGD_DATA \
+ && touch $LIGHTNINGD_DATA/config
 
 VOLUME ["/.bitcoin", "/.lightning"]
 
-COPY --from=builder /lightning/tmp-pyln/ /usr/local/lib/python3.9/dist-packages/
+COPY --from=builder /usr/local/lib/python3.9/dist-packages/ /usr/local/lib/python3.9/dist-packages/
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=builder /lightning/tools/docker-entrypoint.sh entrypoint.sh
 COPY --from=clboss /usr/local/bin/clboss /usr/local/bin
-COPY --from=cyphernode/bitcoin:v22.0-mosquitto-debian /usr/bin/bitcoin-cli /usr/bin
+COPY --from=cyphernode/bitcoin:v26.0 /usr/bin/bitcoin-cli /usr/bin
 COPY bitcoin.conf /.bitcoin/bitcoin.conf
 
 EXPOSE 9735 9835
