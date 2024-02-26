@@ -12,7 +12,7 @@ index 9f45431..568dc8e 100644
      , reusable_offer: !!r['reusable-offer'] }))
    , invUseOffer$ = on('[do=new-invoice] [name=reusable-offer]', 'input')
 diff --git a/client/src/model.js b/client/src/model.js
-index 302fb36..0967771 100644
+index 302fb36..9b1a8cb 100644
 --- a/client/src/model.js
 +++ b/client/src/model.js
 @@ -1,17 +1,17 @@
@@ -20,24 +20,24 @@ index 302fb36..0967771 100644
  import { Observable as O } from './rxjs'
 -import { dbg, getChannels, formatAmt, recvAmt, parsePayment, combine, isConnError, only } from './util'
 +import { dbg, getChannels, formatAmt, recvAmt, combine, isConnError, only } from './util'
- 
+
  const msatbtc = big(100000000000) // msat in 1 btc
- 
+
  const
    sumChans = chans =>
      chans.filter(c => c.chan.state === 'CHANNELD_NORMAL')
 -         .reduce((T, c) => T + c.chan.msatoshi_to_us, 0)
 +         .reduce((T, c) => T + c.chan.to_us_msat, 0)
- 
+
  , sumOuts = outs =>
      outs.filter(o => o.status === 'confirmed')
 -        .reduce((T, o) => T + o.value*1000, 0)
 +        .reduce((T, o) => T + o.amount_msat, 0)
- 
+
  , fmtAlert = (s, unitf) => s.replace(/@\{\{(\d+)\}\}/g, (_, msat) => unitf(msat))
- 
+
 @@ -37,9 +37,9 @@ module.exports = ({ dismiss$, togExp$, togTheme$, togUnit$, page$, goHome$, goRe
- 
+
    // Config options
      conf     = (name, def, list) => savedConf$.first().map(c => c[name] || def).map(list ? idx(list) : idn)
 -  , expert$  = conf('expert', false)        .concat(togExp$)  .scan(x => !x)
@@ -46,7 +46,7 @@ index 302fb36..0967771 100644
 -  , unit$    = conf('unit',  'bits',  units).concat(togUnit$) .scan(n => (n+1) % units.length) .map(n => units[n])
 +  , unit$    = conf('unit',  'BTC',  units).concat(togUnit$) .scan(n => (n+1) % units.length) .map(n => units[n])
    , conf$    = combine({ expert$, theme$, unit$ })
- 
+
    // Currency & unit conversion handling
 @@ -68,8 +68,8 @@ module.exports = ({ dismiss$, togExp$, togTheme$, togUnit$, page$, goHome$, goRe
    , alert$ = O.merge(
@@ -59,6 +59,15 @@ index 302fb36..0967771 100644
      , closed$.map(c   => [ 'success', `Channel ${c.chan.short_channel_id || c.chan.channel_id} is closing` ])
      , dismiss$.mapTo(null)
      )
+@@ -88,7 +88,7 @@ module.exports = ({ dismiss$, togExp$, togTheme$, togUnit$, page$, goHome$, goRe
+   // Periodically re-sync channel balance from "listpeers",
+   // continuously patch with known channel opening/closing
+   , channels$ = O.merge(
+-      peers$.map(peers => _ => getChannels(peers))
++      peers$.map(channels => _ => getChannels(channels))
+     , funded$.map(chan => S => [ ...S, chan ])
+     , closed$.map(chan => S => [ ...S.filter(c => c.chan.channel_id != chan.chan.channel_id), chan ])
+     ).startWith(null).scan((S, mod) => mod(S))
 @@ -99,14 +99,14 @@ module.exports = ({ dismiss$, togExp$, togTheme$, togUnit$, page$, goHome$, goRe
    // continuously patch with known incoming & outgoing payments
    , cbalance$ = O.merge(
@@ -68,7 +77,7 @@ index 302fb36..0967771 100644
 +    , incoming$.map(inv => N => N + inv.amount_received_msat)
 +    , paySent$.map(pay => N => N - pay.amount_sent_msat)
      ).startWith(null).scan((N, mod) => mod(N)).distinctUntilChanged()
- 
+
    // Periodically re-sync from listpays, continuously patch with known outgoing
    // payments and payment status update notifications
    , freshPays$ = O.merge(
@@ -84,7 +93,7 @@ index 302fb36..0967771 100644
 -    , ...payments.map(p => [ 'out', p.created_at, p.msatoshi, p ])
 +    , ...payments.map(p => [ 'out', p.created_at, p.amount_msat, p ])
      ].sort((a, b) => b[1] - a[1]))
- 
+
    // Collapsed payment/invoice on home feed list
 @@ -145,7 +145,7 @@ module.exports = ({ dismiss$, togExp$, togTheme$, togUnit$, page$, goHome$, goRe
    , amtMsat$ = amtVal$.withLatestFrom(rate$, (amt, rate) => amt && rate && big(amt).div(rate).toFixed(0) || '')
@@ -102,7 +111,7 @@ index 302fb36..0967771 100644
 -         , ...updates.map(parsePayment) ]
 +         , ...updates ]
  }
- 
+
  const markFailed = (payments, payment_hash) => payments.map(pay =>
 @@ -205,8 +205,8 @@ const markFailed = (payments, payment_hash) => payments.map(pay =>
  const pendingPayStub = inv => ({
@@ -116,10 +125,19 @@ index 302fb36..0967771 100644
  , ...only(inv, 'payment_hash', 'description', 'offer_id', 'vendor', 'quantity', 'payer_note' )
  })
 diff --git a/client/src/rpc.js b/client/src/rpc.js
-index 837dfa9..70ada2a 100644
+index 837dfa9..408f759 100644
 --- a/client/src/rpc.js
 +++ b/client/src/rpc.js
-@@ -69,8 +69,8 @@ exports.makeReq = ({ viewPay$, confPay$, offerPay$, offerRecv$, newInv$, goLogs$
+@@ -34,7 +34,7 @@ exports.parseRes = ({ HTTP, SSE }) => {
+
+   // Periodic updates
+   , info$:     reply('getinfo').map(r => r.body)
+-  , peers$:    reply('listpeers').map(r => r.body.peers)
++  , peers$:    reply('listpeerchannels').map(r => r.body.channels)
+   , payments$: reply('_listpays').map(r => r.body.pays)
+   , invoices$: reply('_listinvoices').map(r => r.body.invoices)
+   , funds$:    reply('listfunds').map(r => r.body)
+@@ -69,14 +69,14 @@ exports.makeReq = ({ viewPay$, confPay$, offerPay$, offerRecv$, newInv$, goLogs$
    viewPay$.map(paystr => [ '_decodecheck',     [ paystr ], { paystr } ])
  , confPay$.map(pay    => [ '_pay',             [ pay.paystr, pay.custom_msat ], { pay, bg: true } ])
  , newInv$.map(inv => !inv.reusable_offer
@@ -129,49 +147,75 @@ index 837dfa9..70ada2a 100644
 +                       : [ 'offer',            [ inv.amount_msat, inv.description, null, inv.label ], inv ])
  , offerPay$.map(pay   => [ '_fetchinvoice',    [ pay.paystr, pay.custom_msat, pay.quantity, pay.payer_note ] ])
  , offerRecv$.map(recv => [ 'sendinvoice',      [ recv.paystr, recv.label ] ])
- 
+
+ , goLogs$.mapTo(         [ 'getlog' ] )
+
+-, updChan$.mapTo(        [ 'listpeers' ] )
++, updChan$.mapTo(        [ 'listpeerchannels' ] )
+ , openChan$.map(d     => [ '_connectfund', [ d.nodeuri, d.channel_capacity_sat, d.feerate ] ])
+ , closeChan$.map(d    => [ '_close',       [ d.peerid, d.chanid ] ])
+
+@@ -90,7 +90,7 @@ exports.makeReq = ({ viewPay$, confPay$, offerPay$, offerRecv$, newInv$, goLogs$
+ , timer(60000).mapTo(    [ '_listpays',    [], { bg: true } ])
+ , timer(60000).mapTo(    [ 'getinfo',      [], { bg: true } ])
+ , timer(60000).merge(goChan$).throttleTime(2000)
+-              .mapTo(    [ 'listpeers',    [], { bg: true } ])
++              .mapTo(    [ 'listpeerchannels', [], { bg: true } ])
+ , timer(60000).merge(goNewChan$).merge(goDeposit$).throttleTime(2000)
+               .mapTo(    [ 'listfunds',    [], { bg: true } ])
+
 diff --git a/client/src/util.js b/client/src/util.js
-index b1c9007..2177caf 100644
+index b1c9007..df910a9 100644
 --- a/client/src/util.js
 +++ b/client/src/util.js
-@@ -20,19 +20,12 @@ export const parseUri = uri => {
+@@ -20,18 +20,11 @@ export const parseUri = uri => {
  // returns the expected invoice amount when its <0.5% different from the actual amount paid,
  // or the actual amount paid otherwise. this is done to make the UX less confusing when the
  // sender uses overpayment randomization (https://github.com/ElementsProject/lightning/issues/1089)
 -export const recvAmt = ({ msatoshi: expected, msatoshi_received: actual }) =>
 +export const recvAmt = ({ amount_msat: expected, amount_received_msat: actual }) =>
    (expected && (actual-expected)/expected<0.005) ? expected : actual
- 
- // Parse "listpeers" to get all channels as a list of (peer,channel) tuples
- export const getChannels = peers => [].concat(...peers.map(peer => peer.channels.map(chan => ({ peer, chan }))))
- 
+
+-// Parse "listpeers" to get all channels as a list of (peer,channel) tuples
+-export const getChannels = peers => [].concat(...peers.map(peer => peer.channels.map(chan => ({ peer, chan }))))
+-
 -// Parse the `sat`-suffixed amount string fields into numbers
 -export const parsePayment = p => ({
 -  ...p
 -, msatoshi: p.msatoshi != null ? p.msatoshi : p.amount_msat ? +p.amount_msat.slice(0, -4) : null
 -, msatoshi_sent: p.amount_sent_msat ? +p.amount_sent_msat.slice(0, -4) : null
 -})
--
++// Parse "listpeerchannels" to get all channels as a list
++export const getChannels = channels => [].concat(...channels.map(chan => ({ chan })))
+
  export const combine = obj => {
    const keys = Object.keys(obj).map(k => k.replace(/\$$/, ''))
-   return O.combineLatest(...Object.values(obj), (...xs) =>
 diff --git a/client/src/views/channels.js b/client/src/views/channels.js
-index d74287b..643bff7 100644
+index d74287b..c4dd568 100644
 --- a/client/src/views/channels.js
 +++ b/client/src/views/channels.js
-@@ -14,7 +14,7 @@ const stateGroups = {
+@@ -14,12 +14,12 @@ const stateGroups = {
  const getGroup = state => Object.keys(stateGroups).find(group => stateGroups[group].includes(state))
- 
+
  // Sort by status first, then by amount
 -const chanSorter = (a, b) => (chanSorting(b) - chanSorting(a)) || (b.chan.msatoshi_total - a.chan.msatoshi_total)
 +const chanSorter = (a, b) => (chanSorting(b) - chanSorting(a)) || (b.chan.total_msat - a.chan.total_msat)
- 
- const chanSorting = ({ peer, chan }) =>
-   peer.connected && chan.state == 'CHANNELD_NORMAL' ? 6
+
+-const chanSorting = ({ peer, chan }) =>
+-  peer.connected && chan.state == 'CHANNELD_NORMAL' ? 6
+-: peer.connected && stateGroups.opening.includes(chan.state) ? 5
+-: !peer.connected && chan.state == 'CHANNELD_NORMAL' ? 4
++const chanSorting = ({ chan }) =>
++  chan.peer_connected && chan.state == 'CHANNELD_NORMAL' ? 6
++: chan.peer_connected && stateGroups.opening.includes(chan.state) ? 5
++: !chan.peer_connected && chan.state == 'CHANNELD_NORMAL' ? 4
+ : stateGroups.closing.includes(chan.state) ? 3
+ : stateGroups.opening.includes(chan.state) ? 2
+ : stateGroups.closed.includes(chan.state) ? 1
 @@ -79,17 +79,17 @@ export const newChannel = ({ amtData, fundMaxChan, obalance, unitf, conf: { unit
- 
+
  const channelRenderer = ({ chanActive, unitf, expert, blockheight }) => ({ chan, peer }) => {
- 
+
 -  const bar = (label, color, msatoshi, amtText=unitf(msatoshi)) =>
 +  const bar = (label, color, amount_msat, amtText=unitf(amount_msat)) =>
      div(`.progress-bar.bg-${color}`, {
@@ -180,9 +224,10 @@ index d74287b..643bff7 100644
 -    }, msatoshi/chan.msatoshi_total > 0.05 ? amtText : '')
 +    , style: { width: `${amount_msat / chan.total_msat * 100}%` }
 +    }, amount_msat/chan.total_msat > 0.05 ? amtText : '')
- 
+
    const stateGroup = getGroup(chan.state)
-       , stateLabel = !peer.connected && stateGroup == 'active' ? 'offline' : stateGroup
+-      , stateLabel = !peer.connected && stateGroup == 'active' ? 'offline' : stateGroup
++      , stateLabel = !chan.peer_connected && stateGroup == 'active' ? 'offline' : stateGroup
        , isClosed   = [ 'closing', 'closed' ].includes(stateGroup)
 -      , ours       = chan.msatoshi_to_us
 -      , theirs     = chan.msatoshi_total - ours
@@ -191,15 +236,35 @@ index d74287b..643bff7 100644
        // the channel reserve fields appear to be sometimes (incorrectly?) missing,
        // defaulting them to 0 isn't quite right but should work for now
        , ourReserve = chan.our_channel_reserve_satoshis*1000 || 0
-@@ -107,7 +107,7 @@ const channelRenderer = ({ chanActive, unitf, expert, blockheight }) => ({ chan,
- 
+@@ -103,11 +103,11 @@ const channelRenderer = ({ chanActive, unitf, expert, blockheight }) => ({ chan,
+
+   const visible = chanActive == chan.channel_id
+       , classes = { active: visible, 'list-group-item-action': !visible
+-                  , [`c-${stateGroup}`]: true, 'p-online': peer.connected, 'p-offline': !peer.connected }
++                  , [`c-${stateGroup}`]: true, 'p-online': chan.peer_connected, 'p-offline': !chan.peer_connected }
+
    return li('.list-group-item', { class: classes, dataset: { chanToggle: chan.channel_id } }, [
      header('.d-flex.justify-content-between.mb-2', [
 -      span('.capacity', unitf(chan.msatoshi_total))
 +      span('.capacity', unitf(chan.total_msat))
      , span('.state', stateLabel)
      ])
- 
+
+@@ -133,12 +133,12 @@ const channelRenderer = ({ chanActive, unitf, expert, blockheight }) => ({ chan,
+     , isClosed || expert ? li([ strong('Theirs:'), ' ', unitf(theirs) ]) : ''
+
+     , channelAge ? li([ strong('Age:'), ' ', `${channelAge} blocks (${channelAgeFuz})` ]) : ''
+-    , li([ strong('Peer:'), ' ', small('.break-all', peer.id), ' ', em(`(${peer.connected ? 'connected' : 'disconnected'})`) ])
++    , li([ strong('Peer:'), ' ', small('.break-all', chan.peer_id), ' ', em(`(${chan.peer_connected ? 'connected' : 'disconnected'})`) ])
+     , expert ? li([ strong('Funding TXID:'), ' ', small('.break-all', chan.funding_txid) ]) : ''
+     , expert ? li('.status-text', chan.status.join('\n')) : ''
+
+     , !isClosed ? li('.text-center'
+-      , button('.btn.btn-link.btn-sm', { dataset: { closeChannel: chan.channel_id, closeChannelPeer: peer.id } }, 'Close channel')) : ''
++      , button('.btn.btn-link.btn-sm', { dataset: { closeChannel: chan.channel_id, closeChannelPeer: chan.peer_id } }, 'Close channel')) : ''
+
+     , expert ? li(yaml({ peer: omitKey('channels', peer), ...omitKey('status', chan) })) : ''
+     ])
 diff --git a/client/src/views/home.js b/client/src/views/home.js
 index 2af4655..1b9bde4 100644
 --- a/client/src/views/home.js
@@ -218,18 +283,18 @@ index 2af4655..1b9bde4 100644
 @@ -72,7 +72,7 @@ const itemRenderer = ({ feedActive, unitf, expert }) => ([ type, ts, msat, obj ]
    ])
  }
- 
+
 -const feesText = ({ msatoshi: quoted, msatoshi_sent: sent }, unitf) =>
 +const feesText = ({ amount_msat: quoted, amount_sent_msat: sent }, unitf) =>
    `${unitf(sent-quoted)} (${((sent-quoted)/quoted*100).toFixed(2)}%)`
- 
+
  const pendingStatus = ({ attempts, number_of_parts }) => {
 diff --git a/client/src/views/offers.js b/client/src/views/offers.js
 index 9e7d823..2786458 100644
 --- a/client/src/views/offers.js
 +++ b/client/src/views/offers.js
 @@ -15,9 +15,9 @@ const offerPay = offer => ({ unitf, amtData, offerPayQuantity, conf: { expert }
- 
+
    ,
      // Bitcoin denominated amount
 -    offer.msatoshi
@@ -237,7 +302,7 @@ index 9e7d823..2786458 100644
      ? p('.toggle-unit', [ offer.quantity_min ? 'Price per unit: ' : 'Amount: '
 -      , fmtSatAmountWithAlt(offer.msatoshi, unitf) ])
 +      , fmtSatAmountWithAlt(offer.amount_msat, unitf) ])
- 
+
      // Fiat denominated amount
      : offer.currency
 @@ -43,7 +43,7 @@ const offerPay = offer => ({ unitf, amtData, offerPayQuantity, conf: { expert }
@@ -252,14 +317,14 @@ index 9e7d823..2786458 100644
 @@ -60,7 +60,7 @@ const offerRecv = offer => ({ unitf, conf: { expert} }) =>
    form('.offer-recv', { attrs: { do: 'offer-recv' }, dataset: offer }, [
      h2('Receive payment')
- 
+
 -  , p([ 'You were offered a payment of ', strong('.toggle-unit', unitf(offer.msatoshi)), '. Do you accept it?' ])
 +  , p(['You were offered a payment of ', strong('.toggle-unit', unitf(offer.amount_msat)), '. Do you accept it?'])
- 
+
    //, expert ? p([ 'Node ID: ', small('.text-muted.break-all', offer.node_id) ]) : ''
    //, expert ? p([ 'Offer ID: ', small('.text-muted.break-all', offer.offer_id) ]) : ''
 @@ -71,7 +71,7 @@ const offerRecv = offer => ({ unitf, conf: { expert} }) =>
- 
+
    , div('.form-buttons', [
        button('.btn.btn-lg.btn-primary', { attrs: { type: 'submit' } }
 -      , `Receive ${unitf(offer.msatoshi)}`)
@@ -284,7 +349,7 @@ index 9e7d823..2786458 100644
      ])
    , expert ? yaml(omitKey('bolt12', offer)) : ''
    ]))
- 
+
 -const mul = (msatoshi, quantity=1) =>
 -  quantity == 1 ? msatoshi : Big(msatoshi).mul(quantity).toFixed(0)
 +const mul = (amount_msat, quantity=1) =>
@@ -301,9 +366,9 @@ index 5af6510..bfab0c3 100644
 +  if (payreq.offer && !payreq.offer.amount_msat && payreq.offer.amount && payreq.amount_msat) {
      delete payreq.changes.msat
    }
- 
+
 @@ -56,15 +56,15 @@ const confirmPay = payreq => ({ unitf, amtData, conf: { expert } }) => {
- 
+
    ,
      // Bitcoin-denominated amount that was previously displayed in fiat
 -    (payreq.msatoshi && payreq.offer && payreq.offer.amount)
@@ -313,13 +378,13 @@ index 5af6510..bfab0c3 100644
 +        p('.mb-0.toggle-unit', [ 'Final amount: ', fmtSatAmountWithAlt(payreq.amount_msat, unitf) ])
        , div('.form-text.text-muted', [ 'Quoted as: ', strong(fmtOfferFiatAmount(payreq.offer, payreq.quantity)) ])
        ])
- 
+
      // Bitcoin denominated amount
 -    : payreq.msatoshi
 -    ? p('.toggle-unit', [ 'Amount: ', fmtSatAmountWithAlt(payreq.msatoshi, unitf) ])
 +    : payreq.amount_msat
 +    ? p('.toggle-unit', [ 'Amount: ', fmtSatAmountWithAlt(payreq.amount_msat, unitf) ])
- 
+
      // Amount chosen by the payer
      : formGroup('Enter amount to pay:', amountField(amtData, 'custom_msat', true))
 @@ -89,7 +89,7 @@ const confirmPay = payreq => ({ unitf, amtData, conf: { expert } }) => {
@@ -334,7 +399,7 @@ index 5af6510..bfab0c3 100644
 @@ -98,8 +98,8 @@ const confirmPay = payreq => ({ unitf, amtData, conf: { expert } }) => {
    ])
  }
- 
+
 -const displayAmountChange = ({ msatoshi: final, changes }, unitf) => {
 -  const original = +changes.msat.slice(0, -4)
 +const displayAmountChange = ({ amount_msat: final, changes }, unitf) => {
@@ -347,12 +412,12 @@ index 12ede86..f003d0f 100644
 --- a/client/src/views/recv.js
 +++ b/client/src/views/recv.js
 @@ -8,7 +8,7 @@ const recv = ({ amtData, offersEnabled, invUseOffer }) =>
- 
+
  : form({ attrs: { do: 'new-invoice' } }, [
      h2('Receive payment')
 -  , formGroup('Payment amount', amountField(amtData, 'msatoshi', false))
 +  , formGroup('Payment amount', amountField(amtData, 'amount_msat', false))
- 
+
    , formGroup('Description'
      , input('.form-control.form-control-lg', { attrs: { type: 'text', name: 'description', placeholder: '(optional)' } })
 @@ -30,7 +30,7 @@ const invoice = inv => qrinv(inv).then(qr => ({ unitf, conf: { expert } }) =>
@@ -371,16 +436,16 @@ index 14b931e..0be3bb4 100644
 @@ -16,7 +16,7 @@ export const qruri = process.env.BUILD_TARGET == 'web' && isOnion
    ? data => Promise.resolve(`qr/${ encodeURIComponent(data) }`)
    : data => qrcode.toDataURL(data)
- 
+
 -export const qrinv = inv => qruri(`lightning:${ inv.bolt11 || inv.bolt12_unsigned  }`.toUpperCase())
 +export const qrinv = inv => qruri(`lightning:${ inv.bolt11 || inv.bolt12  }`.toUpperCase())
- 
+
  // Avoid displaying our default description (of "⚡")
  export const showDesc = o => o.description && o.description !== '⚡'
 @@ -29,9 +29,9 @@ export const formGroup = (labelText, control, help) => div('.form-group', [
  , help ? small('.form-text.text-muted', help) : ''
  ])
- 
+
 -export const amountField = ({ msatoshi, amount, step, unit }, msatField, required, placeholder) =>
 +export const amountField = ({ amount_msat, amount, step, unit }, msatField, required, placeholder) =>
    div('.input-group', [
@@ -390,9 +455,9 @@ index 14b931e..0be3bb4 100644
      , { attrs: { type: 'number', step, min: step, name: 'amount', required, placeholder: placeholder||(required?'':'(optional)') }
        , props: { value: amount } })
 @@ -64,9 +64,9 @@ export const omitKey = (k, { [k]: _, ...rest }) => rest
- 
+
  export const pluralize = (strs, n) => `${strs[0]}${n}${strs[1]}${n == 0 || n>1 ? 's' : ''}`
- 
+
 -export const fmtSatAmountWithAlt = (msatoshi, unitf) => span([
 -  strong(unitf(msatoshi))
 -, fmtNullable(unitf(msatoshi, true), amt => small(` (${amt})`))
@@ -400,38 +465,38 @@ index 14b931e..0be3bb4 100644
 +  strong(unitf(amount_msat))
 +, fmtNullable(unitf(amount_msat, true), amt => small(` (${amt})`))
  ])
- 
+
  export const fmtNullable = (value, format, null_format='') =>
 @@ -80,5 +80,5 @@ export const fmtOfferFiatAmount = ({ amount, currency, minor_unit }, quantity=1)
    return `${amount_fmt} ${currency}`
  }
- 
+
 -export const getPricePerUnit = ({ msatoshi, quantity }) =>
 -  Big(msatoshi).div(quantity).toFixed(0)
 +export const getPricePerUnit = ({ amount_msat, quantity }) =>
 +  Big(amount_msat).div(quantity).toFixed(0)
 diff --git a/src/cmd.js b/src/cmd.js
-index 9e5f84c..74f0cdd 100644
+index 9e5f84c..ca1fd0d 100644
 --- a/src/cmd.js
 +++ b/src/cmd.js
 @@ -82,7 +82,7 @@ export const commands = {
        }
- 
+
        // Make BOLT12 msat amounts available as an integer, as they are for BOLT11 invoices
 -      if (decoded.msatoshi == null && decoded.amount_msat) decoded.msatoshi = +decoded.amount_msat.slice(0, -4)
 +      if (decoded.amount_msat == null && decoded.amount_msat) decoded.amount_msat = +decoded.amount_msat
- 
+
        return decoded
      } else {
 @@ -104,8 +104,8 @@ export const commands = {
- 
+
    // Fetch an invoice for the given offer, decode it and return the original offer alongside it
    // Some parameters are unsupported (recurrence/timeout).
 -, async _fetchinvoice(bolt12_offer, msatoshi, quantity, payer_note) {
 -    const { invoice: bolt12_invoice, changes } = await this.fetchinvoice(bolt12_offer, msatoshi, quantity, null, null, null, null, payer_note)
 +, async _fetchinvoice(bolt12_offer, amount_msat, quantity, payer_note) {
 +    const { invoice: bolt12_invoice, changes } = await this.fetchinvoice(bolt12_offer, amount_msat, quantity, null, null, null, null, payer_note)
- 
+
      const invoice = await this._decode(bolt12_invoice)
      assert(invoice.type == 'bolt12 invoice', `Unexpected invoice type ${invoice.type}`)
 @@ -122,8 +122,8 @@ export const commands = {
@@ -445,3 +510,14 @@ index 9e5f84c..74f0cdd 100644
          assert(!decoded.send_invoice || decoded.min_quantity == null, 'send_invoice offers with quantity are unsupported')
          break
        case 'bolt11 invoice':
+@@ -146,8 +146,8 @@ async function getChannel(ln, peerid, chanid) {
+   const peer = await ln.listpeers(peerid).then(r => r.peers[0])
+   assert(peer, 'cannot find peer')
+
+-  const chan = peer.channels.find(chan => chan.channel_id == chanid)
+-  assert(chan, 'cannot find channel')
++  const channels = await ln.listpeerchannels(peerid).then(r => r.channels)
++  assert(channels, 'cannot find channels')
+
+   delete peer.channels
+
