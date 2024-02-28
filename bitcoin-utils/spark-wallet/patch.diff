@@ -482,7 +482,7 @@ index 14b931e..0be3bb4 100644
 +export const getPricePerUnit = ({ amount_msat, quantity }) =>
 +  Big(amount_msat).div(quantity).toFixed(0)
 diff --git a/src/cmd.js b/src/cmd.js
-index 9e5f84c..c7bcc50 100644
+index 9e5f84c..ba55fdf 100644
 --- a/src/cmd.js
 +++ b/src/cmd.js
 @@ -82,7 +82,7 @@ export const commands = {
@@ -522,7 +522,7 @@ index 9e5f84c..c7bcc50 100644
 
 -  const chan = peer.channels.find(chan => chan.channel_id == chanid)
 -  assert(chan, 'cannot find channel')
-+  const channels = await ln.listpeerchannels(peerid).then(r => r.channels)
++  const channels = await ln.call("listpeerchannels", [peerid]).then(r => r.channels)
 +  assert(channels, 'cannot find channels')
 
 -  delete peer.channels
