@@ -191,7 +191,7 @@ index b1c9007..df910a9 100644
  export const combine = obj => {
    const keys = Object.keys(obj).map(k => k.replace(/\$$/, ''))
 diff --git a/client/src/views/channels.js b/client/src/views/channels.js
-index d74287b..c4dd568 100644
+index d74287b..f6a2bc7 100644
 --- a/client/src/views/channels.js
 +++ b/client/src/views/channels.js
 @@ -14,12 +14,12 @@ const stateGroups = {
@@ -212,9 +212,12 @@ index d74287b..c4dd568 100644
  : stateGroups.closing.includes(chan.state) ? 3
  : stateGroups.opening.includes(chan.state) ? 2
  : stateGroups.closed.includes(chan.state) ? 1
-@@ -79,17 +79,17 @@ export const newChannel = ({ amtData, fundMaxChan, obalance, unitf, conf: { unit
+@@ -77,19 +77,19 @@ export const newChannel = ({ amtData, fundMaxChan, obalance, unitf, conf: { unit
+   ])
+ }
 
- const channelRenderer = ({ chanActive, unitf, expert, blockheight }) => ({ chan, peer }) => {
+-const channelRenderer = ({ chanActive, unitf, expert, blockheight }) => ({ chan, peer }) => {
++const channelRenderer = ({ chanActive, unitf, expert, blockheight }) => ({ chan }) => {
 
 -  const bar = (label, color, msatoshi, amtText=unitf(msatoshi)) =>
 +  const bar = (label, color, amount_msat, amtText=unitf(amount_msat)) =>
@@ -250,7 +253,7 @@ index d74287b..c4dd568 100644
      , span('.state', stateLabel)
      ])
 
-@@ -133,12 +133,12 @@ const channelRenderer = ({ chanActive, unitf, expert, blockheight }) => ({ chan,
+@@ -133,14 +133,14 @@ const channelRenderer = ({ chanActive, unitf, expert, blockheight }) => ({ chan,
      , isClosed || expert ? li([ strong('Theirs:'), ' ', unitf(theirs) ]) : ''
 
      , channelAge ? li([ strong('Age:'), ' ', `${channelAge} blocks (${channelAgeFuz})` ]) : ''
@@ -263,8 +266,11 @@ index d74287b..c4dd568 100644
 -      , button('.btn.btn-link.btn-sm', { dataset: { closeChannel: chan.channel_id, closeChannelPeer: peer.id } }, 'Close channel')) : ''
 +      , button('.btn.btn-link.btn-sm', { dataset: { closeChannel: chan.channel_id, closeChannelPeer: chan.peer_id } }, 'Close channel')) : ''
 
-     , expert ? li(yaml({ peer: omitKey('channels', peer), ...omitKey('status', chan) })) : ''
+-    , expert ? li(yaml({ peer: omitKey('channels', peer), ...omitKey('status', chan) })) : ''
++    , expert ? li(yaml({ ...omitKey('status', chan) })) : ''
      ])
+   ])
+ }
 diff --git a/client/src/views/home.js b/client/src/views/home.js
 index 2af4655..1b9bde4 100644
 --- a/client/src/views/home.js
@@ -476,7 +482,7 @@ index 14b931e..0be3bb4 100644
 +export const getPricePerUnit = ({ amount_msat, quantity }) =>
 +  Big(amount_msat).div(quantity).toFixed(0)
 diff --git a/src/cmd.js b/src/cmd.js
-index 9e5f84c..ca1fd0d 100644
+index 9e5f84c..c7bcc50 100644
 --- a/src/cmd.js
 +++ b/src/cmd.js
 @@ -82,7 +82,7 @@ export const commands = {
@@ -510,7 +516,7 @@ index 9e5f84c..ca1fd0d 100644
          assert(!decoded.send_invoice || decoded.min_quantity == null, 'send_invoice offers with quantity are unsupported')
          break
        case 'bolt11 invoice':
-@@ -146,8 +146,8 @@ async function getChannel(ln, peerid, chanid) {
+@@ -146,10 +146,11 @@ async function getChannel(ln, peerid, chanid) {
    const peer = await ln.listpeers(peerid).then(r => r.peers[0])
    assert(peer, 'cannot find peer')
 
@@ -519,5 +525,9 @@ index 9e5f84c..ca1fd0d 100644
 +  const channels = await ln.listpeerchannels(peerid).then(r => r.channels)
 +  assert(channels, 'cannot find channels')
 
-   delete peer.channels
+-  delete peer.channels
++  const chan = channels.find(chan => chan.channel_id == chanid)
++  assert(chan, 'cannot find channel')
 
+   return { peer, chan }
+ }
