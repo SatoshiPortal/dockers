@@ -5,13 +5,13 @@ This Docker container is based on Alpine.  It will run the whole container as th
 ## Build
 
 ```bash
-docker build -t cyphernode/specter:v1.7.1 .
+docker build -t cyphernode/specter:v2.0.2 .
 ```
 
 ## Run
 
 ```bash
-docker run --rm -d -p 25441:25441 -v "$YOUR_DATAPATH/data:/.specter" -v "$BITCOIN_DATAPATH/bitcoin-client.conf:/.bitcoin/bitcoin.conf:ro" cyphernode/specter:v1.7.1 $(id -u):$(id -g) /entrypoint.sh "0.0.0.0"
+docker run --rm -d -p 25441:25441 -v "$YOUR_DATAPATH/data:/.specter" -v "$BITCOIN_DATAPATH/bitcoin-client.conf:/.bitcoin/bitcoin.conf:ro" cyphernode/specter:v2.0.2 $(id -u):$(id -g) /entrypoint.sh "0.0.0.0"
 ```
 
 Then point your browser to http://localhost:25441 and enjoy!
