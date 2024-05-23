@@ -4,7 +4,7 @@
 
 FROM debian:bullseye-slim as builder
 
-ENV LIGHTNINGD_VERSION=v23.11.2
+ENV LIGHTNINGD_VERSION=v24.02.2
 ENV DEVELOPER=1
 
 RUN apt update && apt install -y \
@@ -35,7 +35,8 @@ RUN apt update && apt install -y \
     libev-dev \
     libevent-dev \
     qemu-user-static \
-    pkg-config
+    pkg-config \
+    jq
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
@@ -65,7 +66,7 @@ RUN . "/root/.cargo/env" \
 
 FROM debian:bullseye-slim as clboss
 
-# Let's get v0.13
+# Let's get v0.13.1
 RUN apt update && apt install -y \
     build-essential \
     pkg-config \
@@ -79,7 +80,7 @@ RUN apt update && apt install -y \
     libtool \
  && git clone https://github.com/ZmnSCPxj/clboss.git \
  && cd clboss \
- && git checkout v0.13 \
+ && git checkout v0.13.1 \
  && autoreconf -i \
  && ./configure && make && make install
 
@@ -117,7 +118,7 @@ COPY --from=builder /usr/local/lib/python3.9/dist-packages/ /usr/local/lib/pytho
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=builder /lightning/tools/docker-entrypoint.sh entrypoint.sh
 COPY --from=clboss /usr/local/bin/clboss /usr/local/bin
-COPY --from=cyphernode/bitcoin:v26.0 /usr/bin/bitcoin-cli /usr/bin
+COPY --from=cyphernode/bitcoin:v24.0.1-mosquitto-debian /usr/bin/bitcoin-cli /usr/bin
 COPY bitcoin.conf /.bitcoin/bitcoin.conf
 
 EXPOSE 9735 9835
