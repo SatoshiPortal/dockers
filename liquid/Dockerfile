@@ -1,6 +1,6 @@
 FROM debian:bullseye-slim
 
-ARG ELEMENTS_VERSION="23.2.1"
+ARG ELEMENTS_VERSION="23.2.2"
 
 # x86_64, arm or aarch64
 ARG ARCH=aarch64
