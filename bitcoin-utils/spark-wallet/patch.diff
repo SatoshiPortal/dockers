@@ -125,7 +125,7 @@ index 302fb36..9b1a8cb 100644
  , ...only(inv, 'payment_hash', 'description', 'offer_id', 'vendor', 'quantity', 'payer_note' )
  })
 diff --git a/client/src/rpc.js b/client/src/rpc.js
-index 837dfa9..408f759 100644
+index 837dfa9..b02ca51 100644
 --- a/client/src/rpc.js
 +++ b/client/src/rpc.js
 @@ -34,7 +34,7 @@ exports.parseRes = ({ HTTP, SSE }) => {
@@ -155,8 +155,14 @@ index 837dfa9..408f759 100644
  , openChan$.map(d     => [ '_connectfund', [ d.nodeuri, d.channel_capacity_sat, d.feerate ] ])
  , closeChan$.map(d    => [ '_close',       [ d.peerid, d.chanid ] ])
 
-@@ -90,7 +90,7 @@ exports.makeReq = ({ viewPay$, confPay$, offerPay$, offerRecv$, newInv$, goLogs$
- , timer(60000).mapTo(    [ '_listpays',    [], { bg: true } ])
+@@ -87,10 +87,10 @@ exports.makeReq = ({ viewPay$, confPay$, offerPay$, offerRecv$, newInv$, goLogs$
+   timer(10).mapTo(        [ 'getinfo' ] )
+
+   // Periodic updates
+-, timer(60000).mapTo(    [ '_listinvoices' ], { bg: true } ])
+-, timer(60000).mapTo(    [ '_listpays',    [], { bg: true } ])
++, timer(60000).mapTo(    [ '_listinvoices', [ { limit: 100 } ], { bg: true } ])
++, timer(60000).mapTo(    [ '_listpays',    [ { limit: 100 } ], { bg: true } ])
  , timer(60000).mapTo(    [ 'getinfo',      [], { bg: true } ])
  , timer(60000).merge(goChan$).throttleTime(2000)
 -              .mapTo(    [ 'listpeers',    [], { bg: true } ])
@@ -189,7 +195,7 @@ index b1c9007..df910a9 100644
 +export const getChannels = channels => [].concat(...channels.map(chan => ({ chan })))
 
  export const combine = obj => {
-   const keys = Object.keys(obj).map(k => k.replace(/\$$/, ''))
+   const keys = Object.keys(obj).map(k => k.replace(/\$/, ''))
 diff --git a/client/src/views/channels.js b/client/src/views/channels.js
 index d74287b..f6a2bc7 100644
 --- a/client/src/views/channels.js
@@ -482,9 +488,20 @@ index 14b931e..0be3bb4 100644
 +export const getPricePerUnit = ({ amount_msat, quantity }) =>
 +  Big(amount_msat).div(quantity).toFixed(0)
 diff --git a/src/cmd.js b/src/cmd.js
-index 9e5f84c..ba55fdf 100644
+index 9e5f84c..3f59cf9 100644
 --- a/src/cmd.js
 +++ b/src/cmd.js
+@@ -17,8 +17,8 @@ const debug = require('debug')('spark:cmd')
+ , which = [ 'invoices', 'payments' ]
+   // @XXX invoices that get paid and payments that succeed no longer show up in these commands
+   // this may result in incorrect accounting and non-idempotent results from commands
+-, _listinvoices: ln => ln.listinvoices().then(formatInvoices)
+-, _listpays:     ln => ln.call('listpays').then(r => r.pays.map(pay => ({ ...pay, msatoshi_sent: pay.amount_sent_msat, created_at: +(pay.created_at||0) }))).then(formatPays)
++, _listinvoices: ln => ln.listinvoices({ limit: 100 }).then(formatInvoices)
++, _listpays:     ln => ln.call('listpays', { limit: 100 }).then(r => r.pays.map(pay => ({ ...pay, msatoshi_sent: pay.amount_sent_msat, created_at: +(pay.created_at||0) }))).then(formatPays)
+
+ export const commands = {
+   // Queries
 @@ -82,7 +82,7 @@ export const commands = {
        }
 
