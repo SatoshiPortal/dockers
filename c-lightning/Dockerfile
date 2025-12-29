@@ -4,7 +4,7 @@
 
 FROM debian:bullseye-slim as builder
 
-ENV LIGHTNINGD_VERSION=v24.02.2
+ENV LIGHTNINGD_VERSION=v24.11.1
 ENV DEVELOPER=1
 
 RUN apt update && apt install -y \
@@ -48,16 +48,13 @@ RUN pip3 install -U pip
 RUN pip3 install -U wheel
 RUN . "/root/.cargo/env" \
  && pip3 install cryptography \
- && curl -sSL https://install.python-poetry.org | python3 - \
+ && curl -sSL https://install.python-poetry.org | POETRY_VERSION=1.8.0 python3 - \
  && /root/.local/bin/poetry export --without-hashes -o requirements.txt \
  && pip3 install -r requirements.txt
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static \
  && make -j3 DEVELOPER=${DEVELOPER} \
  && make install
-
-RUN . "/root/.cargo/env" \
- && pip3 install -r plugins/clnrest/requirements.txt
 
 
 # ----------------------------------------------------------------------
