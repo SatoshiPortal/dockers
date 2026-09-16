@@ -1,6 +1,6 @@
-FROM debian:bullseye-slim
+FROM debian:trixie-slim
 
-ARG CORE_VERSION="26.0"
+ARG CORE_VERSION="31.1"
 
 # x86_64, arm or aarch64
 ARG ARCH
@@ -25,3 +25,8 @@ RUN apt update && apt -y install wget gpg mosquitto-clients curl coreutils jq gi
 
 ENV HOME /
 EXPOSE 8332 8333 18332 18333 29000
+
+
+# docker build -t bitcoin:v31.1 --build-arg ARCH=x86_64 .
+# docker build -t bitcoin:v31.1 --build-arg ARCH=aarch64 .
+# docker build -t bitcoin:v31.1 --build-arg ARCH=arm .
