@@ -1,4 +1,4 @@
-FROM node:16.8-bullseye-slim as builder
+FROM node:16-bookworm-slim as builder
 
 # Install build dependencies for third-party packages (c-lightning/bitcoind)
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates dirmngr wget
@@ -31,11 +31,11 @@ RUN npm run dist:npm \
 
 # Prepare final image
 
-FROM node:16.8-bullseye-slim
+FROM node:16-bookworm-slim
 
 WORKDIR /opt/spark
 
-RUN apt-get update && apt-get install -y --no-install-recommends xz-utils inotify-tools netcat-openbsd tini \
+RUN apt-get update && apt-get install -y --no-install-recommends xz-utils inotify-tools netcat-openbsd procps \
  && rm -rf /var/lib/apt/lists/* \
  && ln -s /opt/spark/dist/cli.js /usr/bin/spark-wallet \
  && mkdir /data \
@@ -50,6 +50,5 @@ ENV CONFIG=/data/spark/config TLS_PATH=/data/spark/tls TOR_PATH=/data/spark/tor 
 RUN ln -s $TOR_PATH/tor-installation/node_modules dist/transport/granax-dep/node_modules
 
 VOLUME /data
-ENTRYPOINT [ "tini", "-g", "--", "scripts/docker-entrypoint.sh" ]
 
 EXPOSE 9735 9737
